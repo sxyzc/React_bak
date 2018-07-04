@@ -1,3 +1,8 @@
+@import '~antd/dist/antd.css';
+
+:global(.container){
+  text-align: center;
+}
 .App {
   text-align: center;
 }
