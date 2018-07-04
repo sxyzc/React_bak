@@ -31,9 +31,9 @@ const App = () => (
         <br /><br />
         <Input placeholder="输入密码" size="large" style={input}/>
         <br /><br />
-        <Button type="primary" size="large" style={input}>登录</Button>
+        <Button type="primary" size="large" style={input}>注册</Button>
         <br /><br />        
-        <div>还没有账号？现在&nbsp;<Link to="/register">注册</Link></div>
+        <div>已经有账号？现在&nbsp;<Link to="/login">登录</Link></div>
     </div>
   );
   

@@ -1,14 +1,20 @@
 import React from 'react';
-
+import ReactDOM from 'react-dom';
 import './App.css';
 
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
 
 const Loading = () => <div>Loading...</div>;
+//如果在加载中就会出来上边这个东西也
 
 const Login = Loadable({
   loader: () => import('./routes/Login.js'),
+  loading: Loading,
+});
+
+const Register = Loadable({
+  loader: () => import('./routes/Register.js'),
   loading: Loading,
 });
 
@@ -17,11 +23,18 @@ const Pass = Loadable({
   loading: Loading,
 });
 
+const Home = Loadable({
+  loader: () => import('./routes/Home.js'),
+  loading: Loading,
+});
+
 const App = () => (
     <Router>
       <Switch>
-        <Route exact path="/" component={Login}/>
+        <Route exact path="/login" component={Login}/>
         <Route path="/pass" component={Pass}/>
+        <Route path="/register" component={Register}/>
+        <Route path="/home" component={Home}/>
       </Switch>
     </Router>
 );
