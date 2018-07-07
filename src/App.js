@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './App.css';
-
+import { Spin } from 'antd';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
 
-const Loading = () => <div>Loading...</div>;
-//如果在加载中就会出来上边这个东西也
+const Loading = () => <div style={{textAlign:'center',paddingTop:'40%'}}><Spin size="large" /></div>;
 
 const Login = Loadable({
   loader: () => import('./routes/Login.js'),
