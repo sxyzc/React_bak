@@ -82,7 +82,7 @@ const tradeColumns = [{
       <Button size="small">&nbsp;修改&nbsp;</Button>
     ),
 }];
-const tradeData = [{
+var tradeData = [{
     key: '1',
     contract:1,
     sender:'机构A',
@@ -244,17 +244,56 @@ class Panel extends Component {
               });
             }
 
-console.log(iousData);
+            console.log(iousData);
             console.log("1111111");
-
-            
       })
       .catch((error) => {
         console.log("error");     
         console.log(error);       
         message.error('账号与密码不符！');
       });
+    }
 
+    if( key ==4 ){
+      console.log("   @@@@@@@@");
+      var pageNum = 1;
+      var pageSize =10;
+
+      axios({
+        //url: 'http://47.106.237.105:8080/blockchain/login',
+        url: 'http://110.64.88.38:8080/blockchain/transactionlist',
+        method: 'post',
+        data: {
+            "pageNum": "1",
+            "pageSize":"10",
+        },
+        withCredentials: true,
+      })
+      .then((res) => {
+            console.log("res");        
+            console.log(res); 
+            //iousData = res.data;
+            console.log(res); 
+            console.log(tradeData);
+            tradeData = [];
+            for (let i = 0; i < res.data.length; i++) {
+              tradeData.push({
+                key: ((i+1)+""),
+                contract: i,//res.data[i]['conID'],
+                sender: res.data[i]['buyOrg'],
+                receiver: res.data[i]['saleOrg'],
+                Num: res.data[i]['amount'],
+                time: res.data[i]['updateTime'],
+              });
+            }
+            console.log(tradeData);
+            console.log("1111111");
+      })
+      .catch((error) => {
+        console.log("error");     
+        console.log(error);       
+        message.error('账号与密码不符！');
+      });
     }
 
     const props = {
