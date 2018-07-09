@@ -13,12 +13,16 @@ class Amount extends Component {
     constructor(props) {
         super(props);
         this.editClick = this.editClick.bind(this);
+        this.handleOk = this.handleOk.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
         // this.showConfirm = this.showConfirm.bind(this);
       }
     
     state = {
         editing:false,
         amountValue:0,
+        visible:false,
+        refValue:''
     }
 
     // showConfirm = (value) => {
@@ -40,6 +44,20 @@ class Amount extends Component {
     //   }
 
     //   this.props.onAmountChange(value);
+    handleOk = (e) => {
+        console.log("here2")
+        setTimeout(function(){}, 500);
+        this.setState({editing: !this.state.editing,visible:false});
+        this.props.onAmountChange(this.state.amountValue);
+        this.state.refValue.destroy()
+    }
+
+    handleCancel = (e) => {
+        console.log("here3")
+        this.setState({editing: !this.state.editing,visible:false});
+        console.log('取消');  
+        this.state.refValue.destroy()      
+    }
 
     editClick = (e) => {        
         if(this.state.editing==true){//按钮是保存
@@ -50,23 +68,16 @@ class Amount extends Component {
                 if(value<0){error("白条额度不能为负")}
                 else if(isNaN(value)){error("必须输入数字！")}
                 else{
-                    confirm({
-                    title: '确定要修改你发行的白条额度吗？',
-                    content: '你的白条额度将被修改为：'+String(value),
-                    onOk(){
-                        return new Promise((resolve, reject) => {
-                            setTimeout(function(){
-                                resolve("成功!"); //代码正常执行！
-                            }, 500);
-                        })
-                        this.setState({editing: !this.state.editing});
-                        console.log('确认');
-                    },
-                    onCancel() {
-                        this.setState({editing: !this.state.editing});
-                        console.log('取消');
-                    },
-                    });
+                    console.log("here1")
+                    this.setState({amountValue: value});
+                    const ref = Modal.confirm({
+                        visible:this.state.visible,   
+                        title: '确定要修改你发行的白条额度吗？',
+                        content: '你的白条额度将被修改为：'+String(value),
+                        onOk:this.handleOk,
+                        onCancel:this.handleCancel
+                        });
+                    this.setState({refValue: ref});
                 }
             }
         }

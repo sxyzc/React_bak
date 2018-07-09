@@ -130,7 +130,7 @@ class Panel extends Component {
       if (!err) {
         if(this.state.havefile==true){
           console.log('Received values of form: ', values);
-          axios.post('http://47.106.237.105:8080/blockchain/add_transaction',values)        
+          axios.post('http://47.106.237.105:8080/SUPL_DEMO/add_transaction',values)        
               .then(function(res){   
                   console.log("res");        
                   console.log(res); 
@@ -165,7 +165,7 @@ class Panel extends Component {
 
     // You can use any AJAX library you like
     reqwest({
-      url: 'http://47.106.237.105:8080/blockchain/upload',
+      url: 'http://47.106.237.105:8080/SUPL_DEMO/upload',
       method: 'post',
       processData: false,
       data: formData,
