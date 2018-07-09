@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
+import { Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
 import { Link} from 'react-router-dom';
 import Amount from './Amount'
 import axios from 'axios'
+import reqwest from 'reqwest'
+const Option = Select.Option;
 const FormItem = Form.Item;
 const Search = Input.Search;
 const { Header, Content, Footer, Sider } = Layout;
@@ -12,12 +14,15 @@ const input = {
   'display':'inline-block'
 }
 const upload = {
-  'width':'265px',
-  'display':'inline-block',
-  'padding-bottom':'35px'
+  'marginTop':'-31px',
+  'marginLeft':'670px',
+  'display':'block',
 }
 const tip={
   'fontSize':'20px'
+}
+const inline= {
+  'display':'inline-block'
 }
 const iousColumns = [{
     title: '发放机构',
@@ -101,11 +106,11 @@ const tradeData = [{
 }]
 
 class Panel extends Component {
-  
   constructor(props) {
     super(props);
     this.handleAmountChange = this.handleAmountChange.bind(this);
   }
+  
   handleAmountChange(value) {
     this.setState({amount:value});
   }
@@ -113,24 +118,75 @@ class Panel extends Component {
     amount:152000000,
     editing:false,
     iconType:"edit",
-    text:"修改"
+    text:"修改",
+    fileList: [],
+    uploading: false,
+    havefile:false,
   }
-  submitClick = () => {
-    // axios.post('http://47.106.237.105:8080/blockchain/add_transaction',values)        
-    //     .then(function(res){   
-    //         console.log("res");        
-    //         console.log(res); 
-    //         if(res.data.status=="1"){
-    //           console.log("登录成功！")
-    //           //url跳转到了 但是不会刷新
-    //           history.push('/home')
-    //         }                         
-    //     })       
-    //     .catch(function(error){
-    //         console.log("error");     
-    //         console.log(error);       
-    //     });        
+  submitClick = (e) => {
+    console.log("here")
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        if(this.state.havefile==true){
+          console.log('Received values of form: ', values);
+          axios.post('http://47.106.237.105:8080/blockchain/add_transaction',values)        
+              .then(function(res){   
+                  console.log("res");        
+                  console.log(res); 
+                  if(res.data.status=="1"){
+                    message.success('录入交易成功');
+                  }                         
+              })       
+              .catch(function(error){
+                  console.log("error");     
+                  console.log(error);       
+              });   
+          }
+        else{
+          message.error('还没有上传合同文件');
+        }
+      }
+    })
   }
+  handleUpload = () => {
+    const { fileList } = this.state;
+    
+    const formData = new FormData();
+    fileList.forEach((file) => {
+      formData.append('files[]', file);
+    });
+
+    this.setState({
+      uploading: true,     
+    });
+    
+    console.log(formData)//这玩意好像是空的
+
+    // You can use any AJAX library you like
+    reqwest({
+      url: 'http://47.106.237.105:8080/blockchain/upload',
+      method: 'post',
+      processData: false,
+      data: formData,
+      success: () => {
+        this.setState({
+          fileList: [],
+          uploading: false,
+          havefile: true,
+        });
+        message.success('上传成功');
+        this.props.form.resetFields();
+      },
+      error: () => {
+        this.setState({
+          uploading: false,
+        });
+        message.error('上传失败');
+      },
+    });
+  }
+
   editClick = () => {
     if(this.state.editing==true){
       this.setState({
@@ -150,9 +206,32 @@ class Panel extends Component {
     });
   }
 
-  render() {    
+  render() {  
+    const { uploading } = this.state;  
     const {getFieldDecorator} = this.props.form
     var key=this.props.menukey
+
+    const props = {
+      action: '//jsonplaceholder.typicode.com/posts/',
+      onRemove: (file) => {
+        this.setState(({ fileList }) => {
+          const index = fileList.indexOf(file);
+          const newFileList = fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      beforeUpload: (file) => {
+        this.setState(({ fileList }) => ({
+          fileList: [...fileList, file],
+        }));
+        return false;
+      },
+      fileList: this.state.fileList,
+    };
+
     if(key==1)
       return (<div>
         <span style={tip}>我发行的白条额度：
@@ -167,42 +246,61 @@ class Panel extends Component {
       <Form onSubmit={this.submitClick} className="submit-form">
 
       <span style={tip}>销售方账号&nbsp;&nbsp;&nbsp;</span>
-      <FormItem>
+      <FormItem style={inline}>
       {getFieldDecorator('saleOrg', {
       rules: [{ required: true, message: '您还没有输入销售方账号！' }],
       })(<Input size="large" style={input}/>)}</FormItem>
-      <br /><br />
+      <br />
 
       <span style={tip}>购买方账号&nbsp;&nbsp;&nbsp;</span>
-      <FormItem>
-      {getFieldDecorator('orgName', {
+      <FormItem style={inline}>
+      {getFieldDecorator('buyOrg', {
       rules: [{ required: true, message: '您还没有输入购买方账号！' }],
       })(<Input size="large" style={input}/>)}</FormItem>
-      <br /><br />
+      <br />
 
       <span style={tip}>交易类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <FormItem>
-      {getFieldDecorator('orgName', {
+      <FormItem style={inline}>
+      {getFieldDecorator('transType', {
       rules: [{ required: true, message: '您还没有选择交易类型！' }],
-      })(<Input size="large" style={input}/>)}</FormItem>
-      <br /><br />
+      })(
+        <Select size="large" style={input}>
+          <Option value="U">材料交易</Option>
+          <Option value="F">成品交易</Option>
+        </Select>    
+      )}</FormItem>
+      <br />
 
       <span style={tip}>交易金额&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <FormItem>
-      {getFieldDecorator('orgName', {
+      <FormItem style={inline}>
+      {getFieldDecorator('amount', {
       rules: [{ required: true, message: '您还没有输入交易金额！' }],
       })(<Input size="large" style={input}/>)}</FormItem>
-      <br /><br />
+      <br />
 
-      <span style={tip}>上传文件&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <FormItem>
-      {getFieldDecorator('orgName', {
-      rules: [{ required: true, message: '您还没有上传文件！' }],
-      })(<Input size="large" type="file" style={input}/>)}</FormItem>
-      <br /><br /><br />
+      <span style={tip}>上传合同&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <Upload {...props} style={inline}>
+          <Button style={inline}>
+            <Icon type="upload" /> 选择文件
+          </Button>
+      </Upload>
 
-      <Button type="primary" htmlType="submit" size="large" className="submit-form-button" style={{width: 385}} 
-              onClick={this.submitClick}>提交</Button>
+      <Button
+          className="upload-demo-start"
+          type="primary"
+          onClick={this.handleUpload}
+          disabled={this.state.fileList.length === 0}
+          loading={uploading}
+          style={upload}
+        >
+          {uploading ? '上传中' : '开始上传' }
+      </Button>
+
+      <br />
+
+      <Button type="primary" htmlType="submit" size="large" className="submit-form-button" 
+      style={{width: 385}}>提交</Button>
+
       </Form>
     </div>)
     else if(key==3)
