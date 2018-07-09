@@ -3,7 +3,7 @@ import { Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,
 import { Link} from 'react-router-dom';
 import Amount from './Amount'
 import axios from 'axios'
-import reqwest from 'reqwest'
+import reqwest from 'request'
 const Option = Select.Option;
 const FormItem = Form.Item;
 const Search = Input.Search;

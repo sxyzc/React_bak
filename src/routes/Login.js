@@ -1,42 +1,48 @@
 import React from 'react'
 import logo from '../logo.png'
 import axios from 'axios'
-import history from './history'
+//import {Router,Route,Redirect, IndexRoute,hashHistory} from 'react-router';
 import { browserHistory } from 'react-router';
-import { BrowserRouter,Link} from 'react-router-dom';
+//import { BrowserRouter,Link} from 'react-router-dom';
 import { message,Form,Icon,Button,Input,Select } from 'antd';
+//import { hashHistory } from 'react-router';
+import { Router, Link, Route } from 'react-router-dom';
+import history from './history';
+
+import { Redirect } from 'react-router-dom';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const input = {
     'width':'25%',
 };
 class NormalLoginForm extends React.Component {
-
+  state = {
+    redirect:0,
+  }
 
   
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+
       if (!err) {
         console.log('Received values of form: ', values);
-        message.success('登录成功');
-        history.push('/home')
-        // axios.post('http://47.106.237.105:8080/blockchain/login',values)        
-        //     .then(function(res){   
-        //         console.log("res");        
-        //         console.log(res); 
-        //         if(res.data.status=="1"){
-        //           console.log("登录成功！")
-        //           message.success('登录成功');
-        //           //url跳转到了 但是不会刷新
-        //           history.push('/home')
-        //         }                         
-        //     })       
-        //     .catch(function(error){
-        //         console.log("error");     
-        //         console.log(error);       
-        //         message.error('账号与密码不符！');
-        //     });           
+        axios.post('http://47.106.237.105:8080/blockchain/login',values)        
+            .then(function(res){   
+                console.log("res");        
+                console.log(res); 
+                if(res.data.status=="1"){
+                  console.log("登录成功！")
+                  message.success('登录成功');
+                  //url跳转到了 但是不会刷新
+                  this.setState({redirect: 1});
+                }                         
+            })       
+            .catch(function(error){
+                console.log("error");     
+                console.log(error);       
+                message.error('账号与密码不符！');
+            });           
       }
     });
   } 
@@ -63,6 +69,11 @@ class NormalLoginForm extends React.Component {
   //   });
   // }
     render() {
+      if (this.state.redirect == 1) {
+        return <Redirect push to="/home" />; //or <Redirect push to="/sample?a=xxx&b=yyy" /> 传递更多参数
+      }
+    
+
         const { getFieldDecorator } = this.props.form
         return (
             <div className="container">
