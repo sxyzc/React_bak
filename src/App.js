@@ -1,11 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import history from './routes/history.js'
 import './App.css';
 import { Spin } from 'antd';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
 
-const Loading = () => <div style={{textAlign:'center',paddingTop:'40%'}}><Spin size="large" /></div>;
+const Loading = () => <div style={{textAlign:'center',paddingTop:'20%'}}><Spin size="large" /></div>;
 
 const Login = Loadable({
   loader: () => import('./routes/Login.js'),
@@ -17,28 +17,26 @@ const Register = Loadable({
   loading: Loading,
 });
 
-const Pass = Loadable({
-  loader: () => import('./routes/Pass.js'),
-  loading: Loading,
-});
-
 const Home = Loadable({
   loader: () => import('./routes/Home.js'),
   loading: Loading,
 });
 
-const App = () => (
+export default class App extends React.Component {
+  state = {
+    menukey:'1',
+  }
+  render() {
+    return (
     <Router>
       <Switch>
         <Route exact path="/login" component={Login}/>
-        <Route path="/pass" component={Pass}/>
         <Route path="/register" component={Register}/>
         <Route path="/home" component={Home}/>
       </Switch>
     </Router>
-);
-
-export default App;
+  )}
+}
 
 
 
