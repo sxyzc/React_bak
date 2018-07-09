@@ -30,7 +30,8 @@ class NormalLoginForm extends React.Component {
         console.log('Received values of form: ', values);
 
           axios({
-            url: 'http://47.106.237.105:8080/blockchain/login',
+            //url: 'http://47.106.237.105:8080/blockchain/login',
+            url: 'http://110.64.88.38:8080/blockchain/login',
             method: 'post',
             data: values,
             withCredentials: true,

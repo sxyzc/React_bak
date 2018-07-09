@@ -42,7 +42,7 @@ const iousColumns = [{
       <Button size="small">&nbsp;回收&nbsp;</Button>
     ),
 }];
-const iousData = [{
+var iousData = [{
     key: '1',
     sender: '机构A',
     receiver:'机构B',
@@ -207,9 +207,55 @@ class Panel extends Component {
   }
 
   render() {  
+
     const { uploading } = this.state;  
     const {getFieldDecorator} = this.props.form
-    var key=this.props.menukey
+    var key=this.props.menukey;
+    if( key ==3 ){
+      console.log("   @@@@@@@@");
+      iousColumns[0]['title']="ssss";
+      var pageNum = 1;
+      var pageSize =10;
+
+      axios({
+        //url: 'http://47.106.237.105:8080/blockchain/login',
+        url: 'http://110.64.88.38:8080/blockchain/ioulist',
+        method: 'post',
+        data: {
+            "pageNum": "1",
+            "pageSize":"10",
+        },
+        withCredentials: true,
+      })
+      .then((res) => {
+            console.log("res");        
+            console.log(res); 
+            //iousData = res.data;
+            console.log(res); 
+            console.log(iousData);
+            iousData = [];
+            for (let i = 0; i < res.data.length; i++) {
+              iousData.push({
+                key: ((i+1)+""),
+                sender: res.data[i]['fromOrg'],
+                receiver: res.data[i]['recOrg'],
+                num: res.data[i]['amount'],
+                returnNum: res.data[i]['paidAmt'],
+              });
+            }
+
+console.log(iousData);
+            console.log("1111111");
+
+            
+      })
+      .catch((error) => {
+        console.log("error");     
+        console.log(error);       
+        message.error('账号与密码不符！');
+      });
+
+    }
 
     const props = {
       action: '//jsonplaceholder.typicode.com/posts/',
