@@ -41,8 +41,8 @@ export default class home extends React.Component {
         >
           <div style={{ minHeight: 100 ,paddingLeft:80,paddingTop:20}} >
             <Avatar size="large" icon="user" />
-            {/* <div style={{ marginTop: 10}}>机构A</div> */}
-            <div style={{ marginTop: 10}}>{sessionStorage['orgID']}</div>
+            <div style={{ marginTop: 10,width: 200,marginLeft: -80,textAlign: 'center'}}>
+            {sessionStorage['orgID']}</div>
           </div>
           <Menu theme="light" mode="inline" defaultSelectedKeys={['1']} onClick={this.changekey}>
             <Menu.Item key="1">

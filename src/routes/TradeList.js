@@ -83,17 +83,10 @@ class TradeList extends Component {
       }
 
     init(){
-        console.log("   @@@@@@@@");
-        var pageNum = 1;
-        var pageSize =10;
-  
+        console.log("   @@@@@@@@"); 
         axios({
           url: 'transactionlist',
           method: 'post',
-          data: {
-              "pageNum": "1",
-              "pageSize":"10",
-          },
         })
         .then((res) => {
               console.log("res");        
@@ -114,7 +107,7 @@ class TradeList extends Component {
         .catch((error) => {
           console.log("error");     
           console.log(error);       
-          message.error('账号与密码不符！');
+          message.error('获取交易列表失败');
         });
     }
 

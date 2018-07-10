@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Table,message,Button,Layout,Menu, Icon, Input } from 'antd';
-import axios from 'axios'
 import reqwest from 'reqwest'
+import axios from '../http'
 
 const columns = [{
     title: '发放机构',
@@ -78,18 +78,9 @@ class IousList extends Component {
       fetch = (params = {}) => {
         console.log('params:', params);
         this.setState({ loading: true });
-
-        var pageNum = 1;
-        var pageSize =10;
         axios({
-        //url: 'http://172.20.10.9:8080/blockchain/login',
-        url: 'http://172.20.10.9:8080/blockchain/ioulist',
-        method: 'post',
-        data: {
-            "pageNum": "1",
-            "pageSize":"10",
-        },
-        withCredentials: true,
+        url: 'ioulist',
+        method: 'get',
         })
         .then((res) => {
             console.log("res");        
@@ -123,7 +114,7 @@ class IousList extends Component {
         .catch((error) => {
             console.log("error");     
             console.log(error);       
-            message.error('账号与密码不符！');
+            message.error('请求数据失败');
         });
 
       }
