@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal,Tooltip,Icon,Input } from 'antd';
+import { message,Modal,Tooltip,Icon,Input } from 'antd';
 import axios from 'axios'
 const confirm = Modal.confirm;
 
@@ -42,7 +42,7 @@ class Amount extends Component {
                             setTimeout(function(){
                                 axios({
                                     method:'post',
-                                    url:'http://127.0.0.1:8080/blockchain/update_iou_limit',
+                                    url:'http://172.20.10.9:8080/blockchain/update_iou_limit',
                                     data:{
                                         amount:value,
                                         orgID:"bussiness_final"
@@ -52,12 +52,11 @@ class Amount extends Component {
                                     console.log(res.data);
                                     if(res.data.status=="1"){
                                         // 正确修改
-                                        console.log("修改成功");
                                         win.setState({amountValue: value});
                                         win.setState({editing: !win.state.editing});
                                         win.props.onAmountChange(value);
                                         console.log(win.state.amountValue);
-                                        console.log('确认');
+                                        message.success('成功更新白条额度');
                                     }
                                 }).catch(function(error){
                                   console.log("error");     

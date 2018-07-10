@@ -117,6 +117,7 @@ class Panel extends Component {
   }
 
   state = {
+    amount:50,
     editing:false,
     iconType:"edit",
     text:"修改",
@@ -207,22 +208,10 @@ class Panel extends Component {
       editing: !this.state.editing,
     });
   }
-  getInitialState(){
-    return {
-      amount:50,
-      editing:false,
-      iconType:"edit",
-      text:"修改",
-      fileList: [],
-      uploading: false,
-      havefile:false,
-    }
-  }
-
   render() {  
 
     const { uploading } = this.state;  
-    const {getFieldDecorator} = this.props.form
+    const { getFieldDecorator } = this.props.form
     var key=this.props.menukey;
     if( key ==3 ){
       console.log("   @@@@@@@@");
