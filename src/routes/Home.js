@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
-import { Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
-import { Link} from 'react-router-dom';
-import Amount from './Amount'
+import { message,Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
+import { Redirect } from 'react-router-dom';
 import Panel from './Panel'
-const Search = Input.Search;
+import axios from '../http'
 const { Header, Content, Footer, Sider } = Layout;
-const { SubMenu } = Menu;
 
 export default class home extends React.Component {
   state = {
     menukey:'1',
     conID:'',
+    redirect:0,
   }
 
   changekey = (info) => {
@@ -23,6 +22,25 @@ export default class home extends React.Component {
     Panel.iou
   }
 
+  logout = () => {
+    axios({
+      url: 'logout',
+      method: 'get',
+    }).then((res) => {
+      console.log("res");        
+      console.log(res); 
+      if(res.data.status=="1"){
+        message.success('注销成功');
+        sessionStorage['orgID'] =""
+        this.setState({redirect: 1});
+      }})
+      .catch((error) => {
+        console.log("error");     
+        console.log(error);       
+        message.error('网络状态不佳,注销失败');
+      });
+  }
+
   render() {
     if(this.state.orgID==''){
       this.setState({
@@ -30,9 +48,10 @@ export default class home extends React.Component {
       });
       console.log("ok");
     }
-
+    if (this.state.redirect == 1) {
+      return <Redirect push to="/login" />; 
+    }
     return (
-
         <Layout>
         <Sider
           theme="light"
@@ -69,7 +88,7 @@ export default class home extends React.Component {
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }} >
-            <Link style={{ position:'absolute',right:30}} to="/login">退出登录</Link>
+            <a style={{ position:'absolute',right:30}} onClick={this.logout}>退出登录</a>
           </Header>
           <Content style={{ margin: '24px 16px 0' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 480 }}>

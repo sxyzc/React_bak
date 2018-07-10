@@ -77,13 +77,13 @@ class ConVertify extends Component {
             uploading: false,
             havefile: true,
           });
-          message.success('上传成功');
+          message.success('合同上传成功');
         })
         .catch((error) => {
           this.setState({
             uploading: false,
           });
-          message.error('上传失败');
+          message.error('合同上传失败');
         });
     }
 

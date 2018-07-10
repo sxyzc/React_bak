@@ -83,7 +83,6 @@ class TradeList extends Component {
       }
 
     init(){
-        console.log("   @@@@@@@@"); 
         axios({
           url: 'transactionlist',
           method: 'post',

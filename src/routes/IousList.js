@@ -79,12 +79,11 @@ class IousList extends Component {
         console.log('params:', params);
         this.setState({ loading: true });
         axios({
-        url: 'ioulist',
-        method: 'get',
+            url: 'ioulist',
+            method: 'post',
         })
         .then((res) => {
             console.log("res");        
-            console.log(res); 
             console.log(res); 
             console.log(data);
             data = [];
@@ -114,7 +113,7 @@ class IousList extends Component {
         .catch((error) => {
             console.log("error");     
             console.log(error);       
-            message.error('请求数据失败');
+            message.error('获取白条列表失败');
         });
 
       }
@@ -122,63 +121,16 @@ class IousList extends Component {
       componentDidMount() {
         this.fetch();
       }
-    
-
-
-
-
-    init(){
-        console.log("   @@@@@@@@");
-        columns[0]['title']="ssss";
-    }
 
     handleRecycleClick = (record) => {
-        console.log(1)
-        console.log(record)
-        // var Target=e.currentTarget
-        // console.log(Target)
-        // console.log(Target.record.num)
-        // console.log(Target.record.key)
-        var iouId="00000022"
-        var max=4723646//当前白条数量
-        var amount=1
-    
-        // var amount=prompt("输入想要回收的白条额度")  
-        // amount=Number(amount)
-        // if(amount<0){error("回收额度不能为负！")}
-        // else if(isNaN(amount)){error("必须输入数字！")}
-        // else if(amount>max){error("回收额度超过当前白条数量！")}
-        // else{
-        //   var values={}
-        //   values.iouId=iouId
-        //   values.amount=amount
-        //   console.log(values)    
-        //   axios.post('http://172.20.10.9:8080/blockchain/recycle_iou',values) 
-        //   .then(function(res){ 
-        //     console.log("res"); 
-        //     console.log(res); 
-        //     if(res.data.status=="1"){
-        //       message.success('回收白条成功');
-        //     } 
-        //   }) 
-        //   .catch(function(error){
-        //     console.log("error"); 
-        //     console.log(error); 
-        //   }); 
-        // }
       }
 
   render() {
-    return(<div>
-    <Table
-        columns={columns}
-        rowKey={record => record.login.uuid}
-        dataSource={this.state.data}
-        pagination={this.state.pagination}
-        loading={this.state.loading}
-        onChange={this.handleTableChange}
-      />
-  </div>)
+    return(<Table columns={columns}
+                  dataSource={data}
+                  pagination={this.state.pagination}
+                  loading={this.state.loading}
+                  onChange={this.handleTableChange}/>)
   }
 }
 
