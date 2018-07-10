@@ -12,40 +12,8 @@ const menu = (
       <Menu.Item key="2">已发货</Menu.Item>
     </Menu>
   );
-  const tradeColumns = [{
-      title: '合同号',
-      dataIndex: 'contract',
-      
-    }, {
-      title: '销售方账号',
-      dataIndex: 'sender',
-    }, {
-      title: '购买方账号',
-      dataIndex: 'receiver',
-    }, {
-      title: '白条金额',
-      dataIndex: 'Num',
-    },{
-      title: '交易时间',
-      dataIndex: 'time',
-    },{
-        title: '下载合同',
-        render: (text, record) => (
-            <Button>下载</Button>
-        //   <Button size="small" disabled={(record.sender!="机构A")&&(record.receiver!="机构A")} onClick={this.changeTransactionStatus(record)} >&nbsp;下载&nbsp;</Button>
-        )
-    },{
-      title: '修改状态',
-      render: (text, record) => (
-        <Dropdown overlay={menu}>
-          <Button size="small" disabled={record.sender!="机构A"}>
-          &nbsp;修改&nbsp;<Icon type="down" />
-          </Button>
-        </Dropdown>
-      ),
-  }];
-  var tradeData = []
 
+var tradeData = []
 
 class TradeList extends Component {
     state= {
@@ -53,15 +21,43 @@ class TradeList extends Component {
       filterDropdownVisible: false,
       searchText: '',
       filtered: false,
-
+      data: [],
       pagination: {},
       loading: false,
       ifTradeSearch: false,
       transactions: []
     }
+
     //实现合同号搜索功能
     onInputChange = (e) => {
       this.setState({ searchText: e.target.value });
+    }
+
+    onSearch = () => {
+      const { searchText } = this.state;
+      const reg = new RegExp(searchText, 'gi');
+      this.setState({
+        filterDropdownVisible: false,
+        filtered: !!searchText,
+        data: this.state.data.map((record) => {
+          console.log(record)
+          const match = record.contract.match(reg);
+          if (!match) {
+            return null;
+          }
+          return {
+            ...record,
+            contract: (
+              <span>
+                {record.contract.split(new RegExp(`(?<=${searchText})|(?=${searchText})`, 'i')).map((text, i) => (
+                  text.toLowerCase() === searchText.toLowerCase()
+                    ? <span key={i} className="highlight">{text}</span> : text // eslint-disable-line
+                ))}
+              </span>
+            ),
+          };
+        }).filter(record => !!record),
+      });
     }
 
     //实现远程加载数据
@@ -87,10 +83,11 @@ class TradeList extends Component {
           method: 'post',
       })
       .then((res) => {
+        var tradeData=[]
           for (let i = 0; i < res.data.length; i++) {
             tradeData.push({
               key: ((i+1)+""),
-              contract: i,
+              contract: String(i),
               sender: res.data[i]['buyOrg'],
               receiver: res.data[i]['saleOrg'],
               Num: res.data[i]['amount'],
@@ -104,8 +101,8 @@ class TradeList extends Component {
           this.setState({
             loading: false,
             pagination,
+            data:tradeData,
           });         
-          console.log(tradeData);
       })
       .catch((error) => {
           console.log("error");     
@@ -130,7 +127,6 @@ class TradeList extends Component {
       console.log(res.data);
       if(!("status" in res.data)){
       console.log("in if");
-      console.log(tradeData.length);
       let obj = {
           key: "1",
           contract:res.data.conID,
@@ -166,6 +162,56 @@ class TradeList extends Component {
     }
 
 render() {
+    const tradeColumns = [{
+      title: '合同号',
+      dataIndex: 'contract',
+      filterDropdown: (
+        <div className="custom-filter-dropdown">
+          <Input
+            ref={ele => this.searchInput = ele}
+            placeholder="Search name"
+            value={this.state.searchText}
+            onChange={this.onInputChange}
+            onPressEnter={this.onSearch}
+          />
+          <Button type="primary" onClick={this.onSearch}>Search</Button>
+        </div>
+      ),
+      filterIcon: <Icon type="smile-o" style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }} />,
+      filterDropdownVisible: this.state.filterDropdownVisible,
+      onFilterDropdownVisibleChange: (visible) => {
+        this.setState({
+          filterDropdownVisible: visible,
+        }, () => this.searchInput && this.searchInput.focus());
+      },
+    }, {
+      title: '销售方账号',
+      dataIndex: 'sender',
+    }, {
+      title: '购买方账号',
+      dataIndex: 'receiver',
+    }, {
+      title: '白条金额',
+      dataIndex: 'Num',
+    },{
+      title: '交易时间',
+      dataIndex: 'time',
+    },{
+        title: '下载合同',
+        render: (text, record) => (
+            <Button>下载</Button>
+        //   <Button size="small" disabled={(record.sender!="机构A")&&(record.receiver!="机构A")} onClick={this.changeTransactionStatus(record)} >&nbsp;下载&nbsp;</Button>
+        )
+    },{
+      title: '修改状态',
+      render: (text, record) => (
+        <Dropdown overlay={menu}>
+          <Button size="small" disabled={record.sender!="机构A"}>
+          &nbsp;修改&nbsp;<Icon type="down" />
+          </Button>
+        </Dropdown>
+      ),
+  }];
   return(<div>
           <Search
             placeholder="输入合同号搜索"
@@ -174,7 +220,7 @@ render() {
             onSearch={value => this.searchTransactionByConID(value)}
             style={{marginLeft:'70%',marginBottom:22,width: '30%',minWidth:280}}
           /><Table columns={tradeColumns}
-                dataSource={tradeData}
+                dataSource={this.state.data}
                 pagination={this.state.pagination}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}/>
