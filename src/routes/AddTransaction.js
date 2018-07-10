@@ -28,30 +28,32 @@ class AddTransaction extends Component {
         fileList: [],
         uploading: false,
         havefile:false,
+        submiting:false,
       }
 
       submitClick = (e) => {
         console.log("here")
         e.preventDefault();
+        this.setState({submiting: true})
         this.props.form.validateFields((err, values) => {
           if (!err) {
             if(this.state.havefile==true){
               console.log('Received values of form: ', values);
                   axios({
-                    //url: 'http://47.106.237.105:8080/blockchain/add_transaction',
-                    url: 'http://172.20.10.9:8080/blockchain/add_transaction',
+                    url: 'add_transaction',
                     method: 'post',
                     data: values,
-                    withCredentials: true,
                   })        
-                  .then(function(res){   
+                  .then((res) => {
+                      this.setState({submiting: false})
                       console.log("res");        
                       console.log(res); 
                       if(res.data.status=="1"){
                         message.success('录入交易成功');
                       }
                   })       
-                  .catch(function(error){
+                  .catch((error) => {
+                      this.setState({submiting: false})
                       console.log("error");     
                       console.log(error);       
                   });   
@@ -174,7 +176,8 @@ class AddTransaction extends Component {
       <br />
 
       <Button type="primary" htmlType="submit" size="large" className="submit-form-button" 
-      style={{width: 385,marginTop:30}}>提交</Button>
+      style={{width: 385,marginTop:30}}
+      loading={this.state.submiting}>提交</Button>
 
       </Form>
     </div>)

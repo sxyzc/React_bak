@@ -16,9 +16,9 @@ const columns = [{
     title: '已还数量',
     dataIndex: 'returnNum',
   },{
-    title: '白条状态',
+    title: '回收白条',
     render: (text, record) => (
-      <Button size="small" onClick={this.handleRecycleClick}>&nbsp;回收&nbsp;</Button>
+      <Button size="small" disabled={record.sender!=sessionStorage['orgID']} onClick={this.handleRecycleClick}>&nbsp;回收&nbsp;</Button>
     ),
 }];
 
@@ -43,21 +43,9 @@ var data = [{
 }];
 
 class IousList extends Component {
-    constructor(props) {
-        super(props);        
-        // this.init();
-      }
-
     state= {
-        data: [],
         pagination: {},
         loading: false,
-
-        amount:50,
-        editing:false,
-        fileList: [],
-        uploading: false,
-        havefile:false,
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -103,7 +91,6 @@ class IousList extends Component {
             pagination.total = 200;
             this.setState({
               loading: false,
-              data: data.results,
               pagination,
             });
             
