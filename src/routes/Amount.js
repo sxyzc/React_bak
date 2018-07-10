@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Modal,Tooltip,Icon,Input } from 'antd';
+import axios from 'axios'
 const confirm = Modal.confirm;
 
 function error(message) {
@@ -13,51 +14,19 @@ class Amount extends Component {
     constructor(props) {
         super(props);
         this.editClick = this.editClick.bind(this);
-        this.handleOk = this.handleOk.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
         // this.showConfirm = this.showConfirm.bind(this);
       }
     
     state = {
         editing:false,
         amountValue:0,
-        visible:false,
-        refValue:''
     }
-
-    // showConfirm = (value) => {
-    //     confirm({
-    //       title: '确定要修改你发行的白条额度吗？',
-    //       content: '你的白条额度将被修改为：'+String(value),
-    //       onOk(){
-    //         return new Promise((resolve, reject) => {
-    //             setTimeout(function(){
-    //                 resolve("成功!"); //代码正常执行！
-    //             }, 250);
-    //         })
-    //         console.log('确认');
-    //       },
-    //       onCancel() {
-    //         console.log('取消');
-    //       },
-    //     });        
-    //   }
 
     //   this.props.onAmountChange(value);
-    handleOk = (e) => {
-        setTimeout(function(){}, 500);
-        this.setState({editing: !this.state.editing,visible:false});
-        this.props.onAmountChange(this.state.amountValue);
-        this.state.refValue.destroy()
-    }
-
-    handleCancel = (e) => {
-        this.setState({editing: !this.state.editing,visible:false});
-        this.state.refValue.destroy()      
-    }
 
     editClick = (e) => {        
         if(this.state.editing==true){//按钮是保存
+            let win = this;
             var value=e.target.parentNode.firstChild.value
             if(value==""){error("您还没有输入数值！")}
             else{
@@ -65,16 +34,45 @@ class Amount extends Component {
                 if(value<0){error("白条额度不能为负")}
                 else if(isNaN(value)){error("必须输入数字！")}
                 else{
-                    console.log("here1")
-                    this.setState({amountValue: value});
-                    const ref = Modal.confirm({
-                        visible:this.state.visible,   
+                    confirm({
                         title: '确定要修改你发行的白条额度吗？',
                         content: '你的白条额度将被修改为：'+String(value),
-                        onOk:this.handleOk,
-                        onCancel:this.handleCancel
-                        });
-                    this.setState({refValue: ref});
+                    onOk(){
+                        return new Promise((resolve, reject) => {
+                            setTimeout(function(){
+                                axios({
+                                    method:'post',
+                                    url:'http://127.0.0.1:8080/blockchain/update_iou_limit',
+                                    data:{
+                                        amount:value,
+                                        orgID:"bussiness_final"
+                                    },
+                                }).then(function(res){
+                                    
+                                    console.log(res.data);
+                                    if(res.data.status=="1"){
+                                        // 正确修改
+                                        console.log("修改成功");
+                                        win.setState({amountValue: value});
+                                        win.setState({editing: !win.state.editing});
+                                        win.props.onAmountChange(value);
+                                        console.log(win.state.amountValue);
+                                        console.log('确认');
+                                    }
+                                }).catch(function(error){
+                                  console.log("error");     
+                                  console.log(error);       
+                              });
+                                resolve("成功!"); //代码正常执行！
+                            }, 500);
+                        })
+                        
+                    },
+                    onCancel() {
+                        win.setState({editing: !win.state.editing});
+                        console.log('取消');
+                    },
+                    });                    
                 }
             }
         }

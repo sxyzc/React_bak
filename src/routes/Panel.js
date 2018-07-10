@@ -117,7 +117,6 @@ class Panel extends Component {
   }
 
   state = {
-    amount:152000000,
     editing:false,
     iconType:"edit",
     text:"修改",
@@ -209,7 +208,15 @@ class Panel extends Component {
     });
   }
   getInitialState(){
-    return {amount}
+    return {
+      amount:50,
+      editing:false,
+      iconType:"edit",
+      text:"修改",
+      fileList: [],
+      uploading: false,
+      havefile:false,
+    }
   }
 
   render() {  

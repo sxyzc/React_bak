@@ -96,7 +96,6 @@ class NormalLoginForm extends React.Component {
                       size="large" style={input} >登录</Button>
               <br /><br />
               <div>还没有账号？现在&nbsp;<Link to="/register">注册</Link></div>
-              <Button onClick={this.fn}></Button>
           </Form>
           </div>
           
