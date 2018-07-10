@@ -69,7 +69,7 @@ export default class home extends React.Component {
               <span className="nav-text">我的白条</span>
             </Menu.Item>
             <Menu.Item key="2">
-              <Icon type="edit" />
+              <Icon type="book" />
               <span className="nav-text">录入交易</span>
             </Menu.Item>
             <Menu.Item key="3">

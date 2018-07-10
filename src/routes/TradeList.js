@@ -1,17 +1,18 @@
 import React, { Component } from 'react'
-import { Dropdown,Table,message,Button,Layout,Menu, Icon, Input } from 'antd';
+import { Dropdown,Table,message,Button,Layout,Menu, Icon, Input, Modal } from 'antd';
 import reqwest from 'reqwest'
 import axios from '../http'
-const Search = Input.Search;
-function handleMenuClick(){
-
+const confirm = Modal.confirm;
+function error(message) {
+  Modal.error({
+    title: '错误',
+    content: message,
+  });
 }
-const menu = (
-    <Menu onClick={handleMenuClick}>
-      <Menu.Item key="1">未发货</Menu.Item>
-      <Menu.Item key="2">已发货</Menu.Item>
-    </Menu>
-  );
+
+const Search = Input.Search;
+
+  var tradeData = []
 
 var tradeData = []
 
@@ -83,21 +84,23 @@ class TradeList extends Component {
           method: 'post',
       })
       .then((res) => {
+        console.log(res.data)
         var tradeData=[]
           for (let i = 0; i < res.data.length; i++) {
             tradeData.push({
               key: ((i+1)+""),
-              contract: String(i),
+              contract: res.data[i]['conID'],
               sender: res.data[i]['buyOrg'],
               receiver: res.data[i]['saleOrg'],
               Num: res.data[i]['amount'],
               time: res.data[i]['updateTime'],
+              latestStatus: res.data[i]['latestStatus']
             });
           }
           const pagination = { ...this.state.pagination };
           // Read total count from server
           // pagination.total = data.totalCount;
-          pagination.total = 200;
+          pagination.total = res.data.length;
           this.setState({
             loading: false,
             pagination,
@@ -133,7 +136,8 @@ class TradeList extends Component {
           sender:res.data.buyOrg,
           receiver: res.data.saleOrg,
           Num: res.data.amount,
-          time: res.data.transTime
+          time: res.data.transTime,
+          latestStatus: res.data.latestStatus
       }
       win.state.transactions.push(obj);
       // win.setState({transactions:});
@@ -161,57 +165,108 @@ class TradeList extends Component {
       console.log("click");
     }
 
+    handleStatusClick = (record) => {
+      console.log(1);
+      console.log(record);
+      confirm({
+        title: '确认修改状态?',
+        content: '确认吗？',
+        onOk() {
+          console.log("ok");
+
+          axios({
+            //url: 'http://47.106.237.105:8080/blockchain/login',
+            url: 'http://172.20.10.9:8080/blockchain/update_trans_status',
+            method: 'post',
+            data:{
+              conID:record.contract,
+            },
+            withCredentials: true,
+          })
+          .then((res) => {
+            console.log("res"); 
+            console.log(res); 
+            if(res.data.status=="1"){
+              message.success('修改状态成功');
+            } 
+          })
+          .catch((error) => {
+            console.log("error");     
+            console.log(error);       
+            message.error('网络状态不佳！');
+          });
+  
+        },
+        onCancel() {},
+      });
+  
+    } 
+
 render() {
-    const tradeColumns = [{
-      title: '合同号',
-      dataIndex: 'contract',
-      filterDropdown: (
-        <div className="custom-filter-dropdown">
-          <Input
-            ref={ele => this.searchInput = ele}
-            placeholder="Search name"
-            value={this.state.searchText}
-            onChange={this.onInputChange}
-            onPressEnter={this.onSearch}
-          />
-          <Button type="primary" onClick={this.onSearch}>Search</Button>
-        </div>
-      ),
-      filterIcon: <Icon type="smile-o" style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }} />,
-      filterDropdownVisible: this.state.filterDropdownVisible,
-      onFilterDropdownVisibleChange: (visible) => {
-        this.setState({
-          filterDropdownVisible: visible,
-        }, () => this.searchInput && this.searchInput.focus());
-      },
-    }, {
-      title: '销售方账号',
-      dataIndex: 'sender',
-    }, {
-      title: '购买方账号',
-      dataIndex: 'receiver',
-    }, {
-      title: '白条金额',
-      dataIndex: 'Num',
-    },{
-      title: '交易时间',
-      dataIndex: 'time',
-    },{
-        title: '下载合同',
-        render: (text, record) => (
-            <Button>下载</Button>
-        //   <Button size="small" disabled={(record.sender!="机构A")&&(record.receiver!="机构A")} onClick={this.changeTransactionStatus(record)} >&nbsp;下载&nbsp;</Button>
-        )
-    },{
-      title: '修改状态',
+
+  const tradeColumns = [{
+    title: '合同号',
+    dataIndex: 'contract',
+    filterDropdown: (
+      <div className="custom-filter-dropdown">
+        <Input
+          ref={ele => this.searchInput = ele}
+          placeholder="Search name"
+          value={this.state.searchText}
+          onChange={this.onInputChange}
+          onPressEnter={this.onSearch}
+        />
+        <Button type="primary" onClick={this.onSearch}>Search</Button>
+      </div>
+    ),
+    filterIcon: <Icon type="smile-o" style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }} />,
+    filterDropdownVisible: this.state.filterDropdownVisible,
+    onFilterDropdownVisibleChange: (visible) => {
+      this.setState({
+        filterDropdownVisible: visible,
+      }, () => this.searchInput && this.searchInput.focus());
+    },
+  }, {
+    title: '销售方账号',
+    dataIndex: 'sender',
+    align:"center",
+  }, {
+    title: '购买方账号',
+    dataIndex: 'receiver',
+    align:"center",
+  }, {
+    title: '白条金额',
+    dataIndex: 'Num',
+    align:"center",
+  },{
+    title: '交易时间',
+    dataIndex: 'time',
+    align:"center",
+  },{
+      title: '下载合同',
+      align:"center",
       render: (text, record) => (
-        <Dropdown overlay={menu}>
-          <Button size="small" disabled={record.sender!="机构A"}>
-          &nbsp;修改&nbsp;<Icon type="down" />
-          </Button>
-        </Dropdown>
+        <Button size="small" 
+        disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} >&nbsp;
+        <a style={{color:'inherit'}} 
+        href={"http://172.20.10.9:8080/blockchain/download/"+record.contract}>
+        下载</a>&nbsp;</Button>
       ),
-  }];
+  },{
+    title: '交易状态',
+    dataIndex: 'Num',
+    align:"center",
+    render: (text, record) => (<span>
+      <span>{text}&nbsp;&nbsp;</span>
+      <Button size="small" icon="edit"
+      disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} 
+      onClick={this.handleStatusClick.bind(this,record)}/>    
+    </span>),
+}];
+
+
+
+
   return(<div>
           <Search
             placeholder="输入合同号搜索"

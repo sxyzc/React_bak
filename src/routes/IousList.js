@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table,message,Button,Layout,Menu, Icon, Input, Modal } from 'antd';
+import { Spin,Table,message,Button,Layout,Menu, Icon, Input, Modal } from 'antd';
 import reqwest from 'reqwest'
 import axios from '../http'
 function error(message) {
@@ -13,7 +13,7 @@ class IousList extends Component {
     state= {
         pagination: {},
         loading: false,
-
+        recyling:false,
         amount:50,
         editing:false,
         fileList: [],
@@ -89,22 +89,17 @@ class IousList extends Component {
       handleRecycleClick = (record) => {
         console.log(1);
         console.log(record);
-        //console.log(record.currentTarget);
-    
-        // var Target=e.currentTarget
-        // console.log(Target)
-        // console.log(Target.record.num)
-        // console.log(Target.record.key)
-        var iouId="00000022"
-        var max=4723646//当前白条数量
+
+        var max=record.num-record.returnNum//当前能归还的白条数量
         var amount=1
     
         var amount=prompt("输入想要回收的白条额度")  
         amount=Number(amount)
         if(amount<0){error("回收额度不能为负！")}
         else if(isNaN(amount)){error("必须输入数字！")}
-        else if(amount>max){error("回收额度超过当前白条数量！")}
+        else if(amount>max){error("所设额度超过当前未归还的白条数量！")}
         else{
+          this.setState({recyling:true});
           var values={}
           values.iouId=record.iouId
           values.amount=amount
@@ -126,18 +121,18 @@ class IousList extends Component {
             if(res.data.status=="1"){
               message.success('回收白条成功');
             } 
-            this.handleTableChange;
+            this.componentDidMount()
+            this.setState({recyling:false});
           })
           .catch((error) => {
             console.log("error");     
             console.log(error);       
             message.error('网络状态不佳！');
+            this.setState({recyling:false});
           });
         }
+        
       }
-
-
-
 
   render() {
     const columns = [{
@@ -149,44 +144,29 @@ class IousList extends Component {
     }, {
       title: '白条数量',
       dataIndex: 'num',
+      align:"center",
     }, {
       title: '已还数量',
       dataIndex: 'returnNum',
+      align:"center",
     },{
       title: '白条状态',
+      align:"center",
       render: (text, record) => (
-        <Button size="small" onClick={this.handleRecycleClick.bind(this,record)}>&nbsp;回收&nbsp;</Button>
+        <Button size="small" 
+        disabled={record.sender!=sessionStorage['orgID']} 
+        onClick={this.handleRecycleClick.bind(this,record)}>&nbsp;回收&nbsp;</Button>
       ),
   }];
 
-//   var data = [{
-//     key: '1',
-//     sender: '机构A',
-//     receiver:'机构B',
-//     num: 4723646,
-//     returnNum:0,
-//   }, {
-//     key: '2',
-//     sender: '机构C',
-//     receiver:'机构D',
-//     num: 13426,
-//     returnNum:0,
-//   }, {
-//     key: '3',
-//     sender: '机构E',
-//     receiver:'机构F',
-//     num: 434265,
-//     returnNum:0,
-// }];
-
-
-    return(<div>
-      {/* <button>sssss{this.state.test}</button> */}
+    return(
+    <Spin spinning={this.state.recyling} tip="白条回收中...">
     <Table columns={columns}
                   dataSource={this.state.iouList}
                   pagination={this.state.pagination}
                   loading={this.state.loading}
-                  onChange={this.handleTableChange}/></div>)
+                  onChange={this.handleTableChange}/>
+    </Spin>)
   }
 }
 
