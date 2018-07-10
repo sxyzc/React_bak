@@ -1,5 +1,4 @@
 import React from 'react';
-import history from './routes/history.js'
 import './App.css';
 import { Spin } from 'antd';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
