@@ -2,13 +2,18 @@ import React from 'react'
 import logo from '../logo.png'
 import axios from 'axios'
 import { Link} from 'react-router-dom';
-import { Form,Icon,Button,Input,Select } from 'antd';
+import { Redirect } from 'react-router-dom';
+import { message,Form,Icon,Button,Input,Select } from 'antd';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const input = {
     'width':'25%',
 };
 class NormalLoginForm extends React.Component {
+  state = {
+    redirect:0,
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -17,10 +22,16 @@ class NormalLoginForm extends React.Component {
         console.log('Received values of form: ', values);
         axios({
           method:'post',
-          url:'http://47.106.237.105:8080/SUPL_DEMO/register',
+          url:'http://172.20.10.9:8080/blockchain/register',
           data:values,
-      }).then(function(res){
-          return res.data;
+      }).then((res) => {
+          if(res.data.status=="1"){
+            message.success('注册成功');
+            this.setState({redirect: 1});
+          }
+          else if(res.data.status=="0"){
+            message.error('注册失败');
+          }
       }).catch(function(error){
         console.log("error");     
         console.log(error);       
@@ -37,6 +48,10 @@ class NormalLoginForm extends React.Component {
     }
   }
     render() {
+        if (this.state.redirect == 1) {
+          console.log("this.state.redirect == 1")
+          return <Redirect push to="/login" />; 
+        }
         const { getFieldDecorator } = this.props.form
         return (
             <div className="container">

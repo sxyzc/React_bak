@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal,Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
+import { Dropdown,Modal,Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
 import { Link} from 'react-router-dom';
 import Amount from './Amount'
 import axios from 'axios'
@@ -31,24 +31,6 @@ const tip={
 const inline= {
   'display':'inline-block'
 }
-const iousColumns = [{
-    title: '发放机构',
-    dataIndex: 'sender',
-  }, {
-    title: '接收机构',
-    dataIndex: 'receiver',
-  }, {
-    title: '白条数量',
-    dataIndex: 'num',
-  }, {
-    title: '已还数量',
-    dataIndex: 'returnNum',
-  },{
-    title: '白条状态',
-    render: (text, record) => (
-      <Button size="small" onClick={handleRecycleClick}>&nbsp;回收&nbsp;</Button>
-    ),
-}];
 var iousData = [{
     key: '1',
     sender: '机构A',
@@ -68,6 +50,15 @@ var iousData = [{
     num: 434265,
     returnNum:0,
 }];
+function handleMenuClick(){
+
+}
+const menu = (
+  <Menu onClick={handleMenuClick}>
+    <Menu.Item key="1">未发货</Menu.Item>
+    <Menu.Item key="2">已发货</Menu.Item>
+  </Menu>
+);
 const tradeColumns = [{
     title: '合同号',
     dataIndex: 'contract',
@@ -86,7 +77,11 @@ const tradeColumns = [{
   },{
     title: '修改状态',
     render: (text, record) => (
-      <Button size="small">&nbsp;修改&nbsp;</Button>
+      <Dropdown overlay={menu}>
+        <Button size="small" disabled={record.sender!="机构A"}>
+        &nbsp;修改&nbsp;<Icon type="down" />
+        </Button>
+      </Dropdown>
     ),
 }];
 var tradeData = [{
@@ -112,38 +107,70 @@ var tradeData = [{
     time:'2018年7月5日 下午6:41'
 }]
 
-function handleRecycleClick(){
-	var iouId="00000022"
-  var amount=prompt("输入想要回收的白条额度")
-  var max=4723646//当前白条数量
-  amount=Number(amount)
-  if(amount<0){error("回收额度不能为负！")}
-  else if(isNaN(amount)){error("必须输入数字！")}
-  else if(amount>max){error("回收额度超过当前白条数量！")}
-  else{
-    var values={}
-    values.iouId=iouId
-    values.amount=amount
-    console.log(values)    
-    axios.post('http://172.20.10.9:8080/blockchain/recycle_iou',values) 
-    .then(function(res){ 
-      console.log("res"); 
-      console.log(res); 
-      if(res.data.status=="1"){
-        message.success('回收白条成功');
-      } 
-    }) 
-    .catch(function(error){
-      console.log("error"); 
-      console.log(error); 
-    }); 
-  }
-}
-
 class Panel extends Component {
   constructor(props) {
     super(props);
-    this.handleAmountChange = this.handleAmountChange.bind(this);
+    this.getLimitFromServer();
+  }
+
+  // handleRecycleClick = (e) => {
+  handleRecycleClick = (record) => {
+    console.log(1)
+    console.log(record)
+    // var Target=e.currentTarget
+    // console.log(Target)
+    // console.log(Target.record.num)
+    // console.log(Target.record.key)
+    var iouId="00000022"
+    var max=4723646//当前白条数量
+    var amount=1
+
+    // var amount=prompt("输入想要回收的白条额度")  
+    // amount=Number(amount)
+    // if(amount<0){error("回收额度不能为负！")}
+    // else if(isNaN(amount)){error("必须输入数字！")}
+    // else if(amount>max){error("回收额度超过当前白条数量！")}
+    // else{
+    //   var values={}
+    //   values.iouId=iouId
+    //   values.amount=amount
+    //   console.log(values)    
+    //   axios.post('http://172.20.10.9:8080/blockchain/recycle_iou',values) 
+    //   .then(function(res){ 
+    //     console.log("res"); 
+    //     console.log(res); 
+    //     if(res.data.status=="1"){
+    //       message.success('回收白条成功');
+    //     } 
+    //   }) 
+    //   .catch(function(error){
+    //     console.log("error"); 
+    //     console.log(error); 
+    //   }); 
+    // }
+  }
+
+  getLimitFromServer = () => {
+    // 从服务器获取amount
+    let win = this;
+    if(this.state.updateAmount){
+      console.log("getting amount");
+      axios({
+        method:'post',
+        url:'http://172.20.10.9:8080/blockchain/get_entity_iou_limit',
+        data:{
+          orgID:"bussiness_final"
+        },
+      }).then(function(res){
+        // console.log(res.data);
+        win.setState({amount:res.data.iouLimit});
+        win.setState({updateAmount:false});
+        // console.log(res.data.iouLimit);
+      }).catch(function(error){
+        console.log("error");     
+        console.log(error);       
+      });
+    }
   }
   
   handleAmountChange(value) {
@@ -151,16 +178,16 @@ class Panel extends Component {
     //axios上去
   }
 
-  state = {
+  state= {
+    currentOrg: "机构A",
+    updateAmount: true,
     amount:50,
     editing:false,
-    iconType:"edit",
-    text:"修改",
     fileList: [],
     uploading: false,
     havefile:false,
-    ifIousSearch:false,
-    ifTradeSearch:false
+    ifTradeSearch: false,
+    transactions: []
   }
 
   submitClick = (e) => {
@@ -182,6 +209,7 @@ class Panel extends Component {
                   console.log("error");     
                   console.log(error);       
               });   
+          this.setState({updateAmount:true});
           }
         else{
           message.error('还没有上传合同文件');
@@ -190,25 +218,16 @@ class Panel extends Component {
     })
   }
   handleUpload = () => {
-    const { fileList } = this.state;
-    
-    const formData = new FormData();
-    fileList.forEach((file) => {
-      formData.append('files[]', file);
-    });
-
+    console.log(this.state.fileList);
     this.setState({
       uploading: true,     
     });
-    
-    console.log(formData)//这玩意好像是空的
-
-    // You can use any AJAX library you like
+    var files = this.state.fileList;
     reqwest({
-      url: 'http://172.20.10.9:8080/SUPL_DEMO/upload',
+      url: 'http://172.20.10.9:8080/blockchain/upload',
       method: 'post',
       processData: false,
-      data: formData,
+      data: files,
       success: () => {
         this.setState({
           fileList: [],
@@ -216,7 +235,6 @@ class Panel extends Component {
           havefile: true,
         });
         message.success('上传成功');
-        this.props.form.resetFields();
       },
       error: () => {
         this.setState({
@@ -227,32 +245,44 @@ class Panel extends Component {
     });
   }
 
-  editClick = () => {
-    if(this.state.editing==true){
-      this.setState({
-        iconType:"edit",
-        text:"修改"
-      });
-    }
-    else{
-      this.setState({
-        iconType:"save",
-        text:"保存"
-      });
-    }
-    console.log(this.state.iconType)
-    this.setState({
-      editing: !this.state.editing,
-    });
-  }
-
   tradeBackAll = () => {
     this.setState({ifTradeSearch:false});
-    //表格显示的内容变成原来的样子
   }
-  iousBackAll = () => {
-    this.setState({ifIousSearch:false});
-    //表格显示的内容变成原来的样子
+
+  searchTransactionByConID = (conID) => {
+    let win = this;
+    axios({
+      method:'post',
+      url:'http://172.20.10.9:8080/blockchain/get_transaction/'+conID,
+      data:{
+        orgID:"bussiness_final"
+      },
+    }).then(function(res){
+      console.log(res.data);
+      if(!("status" in res.data)){
+        console.log("in if");
+        console.log(tradeData.length);
+        let obj = {
+          // key: ""+(tradeData.length+1),
+          key: "1",
+          contract:res.data.conID,
+          sender:res.data.buyOrg,
+          receiver: res.data.saleOrg,
+          Num: res.data.amount,
+          time: res.data.transTime
+        }
+        win.state.transactions.push(obj);
+        // win.setState({transactions:});
+        console.log(win.state.transactions);
+        win.setState({ifTradeSearch:true});
+      }else {
+        message.error("该交易不存在",1)
+        console.log("in else");
+      }
+    }).catch(function(error){
+      console.log("error");     
+      console.log(error);       
+    });
   }
 
   render() {  
@@ -260,6 +290,47 @@ class Panel extends Component {
     const { uploading } = this.state;  
     const { getFieldDecorator } = this.props.form
     var key=this.props.menukey;
+
+    const iousColumns = [{
+      title: '发放机构',
+      dataIndex: 'sender',
+    }, {
+      title: '接收机构',
+      dataIndex: 'receiver',
+    }, {
+      title: '白条数量',
+      dataIndex: 'num',
+    }, {
+      title: '已还数量',
+      dataIndex: 'returnNum',
+    },{
+      title: '白条状态',
+      render: (text, record) => (
+        <Button size="small" onClick={this.handleRecycleClick}>&nbsp;回收&nbsp;</Button>
+      ),
+  }];
+
+    const props = {
+      action: '//jsonplaceholder.typicode.com/posts/',
+      onRemove: (file) => {
+        this.setState(({ fileList }) => {
+          const index = fileList.indexOf(file);
+          const newFileList = fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      beforeUpload: (file) => {
+        this.setState(({ fileList }) => ({
+          fileList: [...fileList, file],
+        }));
+        return false;
+      },
+      fileList: this.state.fileList,
+    };
+
     if( key ==3 ){
       console.log("   @@@@@@@@");
       iousColumns[0]['title']="ssss";
@@ -309,7 +380,7 @@ class Panel extends Component {
 
       axios({
         //url: 'http://172.20.10.9:8080/blockchain/login',
-        url: 'http://110.64.88.38:8080/blockchain/transactionlist',
+        url: 'http://172.20.10.9:8080/blockchain/transactionlist',
         method: 'post',
         data: {
             "pageNum": "1",
@@ -343,28 +414,6 @@ class Panel extends Component {
         message.error('账号与密码不符！');
       });
     }
-
-
-    const props = {
-      action: '//jsonplaceholder.typicode.com/posts/',
-      onRemove: (file) => {
-        this.setState(({ fileList }) => {
-          const index = fileList.indexOf(file);
-          const newFileList = fileList.slice();
-          newFileList.splice(index, 1);
-          return {
-            fileList: newFileList,
-          };
-        });
-      },
-      beforeUpload: (file) => {
-        this.setState(({ fileList }) => ({
-          fileList: [...fileList, file],
-        }));
-        return false;
-      },
-      fileList: this.state.fileList,
-    };
 
     if(key==1)
       return (<div>
@@ -411,25 +460,25 @@ class Panel extends Component {
       rules: [{ required: true, message: '您还没有输入交易金额！' }],
       })(<Input size="large" style={input}/>)}</FormItem>
       <br />
+      <div>
+            <span style={tip}>上传合同&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <Upload {...props} style={inline}>
+                <Button style={inline}>
+                  <Icon type="upload" /> 选择文件
+                </Button>
+            </Upload>
 
-      <span style={tip}>上传合同&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <Upload {...props} style={inline}>
-          <Button style={inline}>
-            <Icon type="upload" /> 选择文件
-          </Button>
-      </Upload>
-
-      <Button
-          className="upload-demo-start"
-          type="primary"
-          onClick={this.handleUpload}
-          disabled={this.state.fileList.length === 0}
-          loading={uploading}
-          style={upload}
-        >
-          {uploading ? '上传中' : '开始上传' }
-      </Button>
-
+            <Button
+                className="upload-demo-start"
+                type="primary"
+                onClick={this.handleUpload}
+                disabled={this.state.fileList.length === 0}
+                loading={uploading}
+                style={upload}
+              >
+                {uploading ? '上传中' : '开始上传' }
+            </Button>
+      </div>
       <br />
 
       <Button type="primary" htmlType="submit" size="large" className="submit-form-button" 
@@ -439,16 +488,7 @@ class Panel extends Component {
     </div>)
     else if(key==3)
       return(<div>
-              <Search
-                placeholder="输入机构号搜索"
-                enterButton="搜索"
-                size="large"
-                onSearch={value => console.log(value)}
-                style={{marginLeft:'70%',marginBottom:22,width: '30%',minWidth:280}}
-              />
-              {/* onSearch后要把对应的state里头的ifIousSearch设置为true */}
               <Table columns={iousColumns} dataSource={iousData} />
-              <Button onClick={this.iousBackAll} ghost={!this.state.ifIousSearch}>返回全部</Button>
             </div>)
     else if(key==4)
       return(<div>
@@ -456,11 +496,11 @@ class Panel extends Component {
             placeholder="输入合同号搜索"
             enterButton="搜索"
             size="large"
-            onSearch={value => console.log(value)}
+            onSearch={value => this.searchTransactionByConID(value)}
             style={{marginLeft:'70%',marginBottom:22,width: '30%',minWidth:280}}
           />
           {/* onSearch后要把对应的state里头的ifTradeSearch设置为true */}
-          <Table columns={tradeColumns} dataSource={tradeData} />
+          <Table columns={tradeColumns} dataSource={this.state.ifTradeSearch?this.state.transactions:tradeData} />
           <Button onClick={this.tradeBackAll} ghost={!this.state.ifTradeSearch}>返回全部</Button>
           </div>)
     else 

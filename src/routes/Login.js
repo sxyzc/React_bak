@@ -4,8 +4,6 @@ import axios from 'axios'
 import { browserHistory } from 'react-router';
 import { message,Form,Icon,Button,Input,Select } from 'antd';
 import { Router, Link, Route } from 'react-router-dom';
-import history from './history';
-
 import { Redirect } from 'react-router-dom';
 import { ENETRESET } from 'constants';
 const Option = Select.Option;
@@ -20,37 +18,38 @@ class NormalLoginForm extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-
-      console.log(this);
-      if (!err) {
-        console.log('Received values of form: ', values);
-
-          axios({
-            //url: 'http://47.106.237.105:8080/blockchain/login',
-            //url: 'http://110.64.88.38:8080/blockchain/login',
-            url: 'http://172.20.10.9:8080/blockchain/login',
-            method: 'post',
-            data: values,
-            withCredentials: true,
-          })
-          .then((res) => {
-                console.log("res");        
-                console.log(res); 
-                if(res.data.status=="1"){
-                  console.log("登录成功！")
-                  message.success('登录成功');
-                  console.log(this);
-                  sessionStorage['orgID'] =values.orgID;
-                  console.log(sessionStorage['orgID']);
-                  //url跳转到了 但是不会刷新
-                  this.setState({redirect: 1});
-                }   
-          })
-          .catch((error) => {
-            console.log("error");     
-            console.log(error);       
-            message.error('账号与密码不符！');
-          });
+    if (!err) {
+        axios({
+          //url: 'http://47.106.237.105:8080/blockchain/login',
+          url: 'http://172.20.10.9:8080/blockchain/login',
+          method: 'post',
+          data: values,
+          withCredentials: true,
+        })
+        .then((res) => {
+              console.log("res");        
+              console.log(res); 
+              if(res.data.status=="1"){
+                message.success('登录成功');
+                sessionStorage['orgID'] =values.orgID;
+                console.log(sessionStorage['orgID']);
+                this.setState({redirect: 1});
+              }
+              else if(res.data.status=="0"){
+                message.error('账号与密码不匹配！');
+              }
+              else if(res.data.status=="-1"){
+                message.error('账号不存在！');
+              }
+              else if(res.data.status=="-2"){
+                message.error('机构类型不匹配！');
+              }
+        })
+        .catch((error) => {
+          console.log("error");     
+          console.log(error);       
+          message.error('网络状态不佳！');
+        });
       }
     });
   } 
