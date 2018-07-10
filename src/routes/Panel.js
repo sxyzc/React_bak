@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
+import { Modal,Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
 import { Link} from 'react-router-dom';
 import Amount from './Amount'
 import axios from 'axios'
@@ -9,6 +9,13 @@ const FormItem = Form.Item;
 const Search = Input.Search;
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
+
+function error(message) {
+  Modal.error({
+    title: '错误',
+    content: message,
+  });
+}
 const input = {
   'width':'265px',
   'display':'inline-block'
@@ -39,7 +46,7 @@ const iousColumns = [{
   },{
     title: '白条状态',
     render: (text, record) => (
-      <Button size="small" onClick="">&nbsp;回收&nbsp;</Button>
+      <Button size="small" onClick={handleRecycleClick}>&nbsp;回收&nbsp;</Button>
     ),
 }];
 var iousData = [{
@@ -104,6 +111,34 @@ var tradeData = [{
     Num:345646,
     time:'2018年7月5日 下午6:41'
 }]
+
+function handleRecycleClick(){
+	var iouId="00000022"
+  var amount=prompt("输入想要回收的白条额度")
+  var max=4723646//当前白条数量
+  amount=Number(amount)
+  if(amount<0){error("回收额度不能为负！")}
+  else if(isNaN(amount)){error("必须输入数字！")}
+  else if(amount>max){error("回收额度超过当前白条数量！")}
+  else{
+    var values={}
+    values.iouId=iouId
+    values.amount=amount
+    console.log(values)    
+    axios.post('http://172.20.10.9:8080/blockchain/recycle_iou',values) 
+    .then(function(res){ 
+      console.log("res"); 
+      console.log(res); 
+      if(res.data.status=="1"){
+        message.success('回收白条成功');
+      } 
+    }) 
+    .catch(function(error){
+      console.log("error"); 
+      console.log(error); 
+    }); 
+  }
+}
 
 class Panel extends Component {
   constructor(props) {
@@ -426,7 +461,7 @@ class Panel extends Component {
           />
           {/* onSearch后要把对应的state里头的ifTradeSearch设置为true */}
           <Table columns={tradeColumns} dataSource={tradeData} />
-          <Button onClick={this.tradeBackAll} ghost={this.state.ifTradeSearch}>返回全部</Button>
+          <Button onClick={this.tradeBackAll} ghost={!this.state.ifTradeSearch}>返回全部</Button>
           </div>)
     else 
     return(<div></div>)
