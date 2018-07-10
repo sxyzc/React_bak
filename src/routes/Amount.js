@@ -16,7 +16,7 @@ class Amount extends Component {
         this.editClick = this.editClick.bind(this);
         // this.showConfirm = this.showConfirm.bind(this);
       }
-    
+
     state = {
         editing:false,
         amountValue:0,

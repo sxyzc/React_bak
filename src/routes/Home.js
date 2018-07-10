@@ -61,6 +61,10 @@ export default class home extends React.Component {
               <Icon type="profile" />
               <span className="nav-text">交易列表</span>
             </Menu.Item>
+            <Menu.Item key="5">
+              <Icon type="eye-o" />
+              <span className="nav-text">合同验伪</span>
+            </Menu.Item>
           </Menu>
         </Sider>
         <Layout>
