@@ -1,5 +1,9 @@
-import { createBrowserHistory } from 'history'
+//import { createBrowserHistory } from 'history'
 
-export default createBrowserHistory({
-  /* pass a configuration object here if needed */
-})
+ import createHistory from 'history/createBrowserHistory';
+
+ export default createHistory();
+
+ // export default createBrowserHistory({
+//   /* pass a configuration object here if needed */
+// })

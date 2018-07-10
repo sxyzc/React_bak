@@ -113,7 +113,9 @@ class Panel extends Component {
   
   handleAmountChange(value) {
     this.setState({amount:value});
+    //axios上去
   }
+
   state = {
     amount:152000000,
     editing:false,
@@ -123,6 +125,7 @@ class Panel extends Component {
     uploading: false,
     havefile:false,
   }
+
   submitClick = (e) => {
     console.log("here")
     e.preventDefault();
@@ -205,11 +208,15 @@ class Panel extends Component {
       editing: !this.state.editing,
     });
   }
+  getInitialState(){
+    return {amount}
+  }
 
   render() {  
     const { uploading } = this.state;  
     const {getFieldDecorator} = this.props.form
     var key=this.props.menukey
+
 
     const props = {
       action: '//jsonplaceholder.typicode.com/posts/',

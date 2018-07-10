@@ -45,7 +45,6 @@ class Amount extends Component {
 
     //   this.props.onAmountChange(value);
     handleOk = (e) => {
-        console.log("here2")
         setTimeout(function(){}, 500);
         this.setState({editing: !this.state.editing,visible:false});
         this.props.onAmountChange(this.state.amountValue);
@@ -53,9 +52,7 @@ class Amount extends Component {
     }
 
     handleCancel = (e) => {
-        console.log("here3")
         this.setState({editing: !this.state.editing,visible:false});
-        console.log('取消');  
         this.state.refValue.destroy()      
     }
 

@@ -1,54 +1,60 @@
 import React from 'react'
 import logo from '../logo.png'
 import axios from 'axios'
-import history from './history'
 import { browserHistory } from 'react-router';
-import { BrowserRouter,Link} from 'react-router-dom';
 import { message,Form,Icon,Button,Input,Select } from 'antd';
+import { Router, Link, Route } from 'react-router-dom';
+import history from './history';
+
+import { Redirect } from 'react-router-dom';
+import { ENETRESET } from 'constants';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const input = {
     'width':'25%',
 };
 class NormalLoginForm extends React.Component {
-
+  state = {
+    redirect:0,
+  }
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+
+      console.log(this);
       if (!err) {
         console.log('Received values of form: ', values);
-        axios.post('http://47.106.237.105:8080/SUPL_DEMO/login',values)        
-            .then(function(res){   
+
+          axios({
+            url: 'http://47.106.237.105:8080/blockchain/login',
+            method: 'post',
+            data: values,
+            withCredentials: true,
+          })
+          .then((res) => {
                 console.log("res");        
                 console.log(res); 
                 if(res.data.status=="1"){
                   console.log("登录成功！")
                   message.success('登录成功');
+                  console.log(this);
                   //url跳转到了 但是不会刷新
-                  history.push('/home')
-                }                         
-            })       
-            .catch(function(error){
-                console.log("error");     
-                console.log(error);       
-                message.error('账号与密码不符！');
-            });           
+                  this.setState({redirect: 1});
+                }   
+          })
+          .catch((error) => {
+            console.log("error");     
+            console.log(error);       
+            message.error('账号与密码不符！');
+          });
       }
     });
   } 
-  fn = (e) => {
-    axios.get('http://47.106.237.105:8080/SUPL_DEMO/get_ioulist_num')        
-    .then(function(res){   
-        console.log("res");        
-        console.log(res.data.amount);     
-    })  
-    .catch(function(error){
-      console.log("error");     
-      console.log(error);       
-      message.error('账号与密码不符！');
-    });         
-  }
+
     render() {
+      if (this.state.redirect == 1) {
+        return <Redirect push to="/home" />; 
+      }
         const { getFieldDecorator } = this.props.form
         return (
             <div className="container">
