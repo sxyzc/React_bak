@@ -69,7 +69,7 @@ export default class home extends React.Component {
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }} >
-            <Link style={{ position:'fixed',right:30}} to="/login">退出登录</Link>
+            <Link style={{ position:'absolute',right:30}} to="/login">退出登录</Link>
           </Header>
           <Content style={{ margin: '24px 16px 0' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 480 }}>

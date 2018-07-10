@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Dropdown,Table,message,Button,Layout,Menu, Icon, Input } from 'antd';
-import axios from 'axios'
 import reqwest from 'reqwest'
+import axios from '../http'
 const Search = Input.Search;
 function handleMenuClick(){
 
@@ -27,6 +27,12 @@ const menu = (
     },{
       title: '交易时间',
       dataIndex: 'time',
+    },{
+        title: '下载合同',
+        render: (text, record) => (
+            <Button>下载</Button>
+        //   <Button size="small" disabled={(record.sender!="机构A")&&(record.receiver!="机构A")} onClick={this.changeTransactionStatus(record)} >&nbsp;下载&nbsp;</Button>
+        )
     },{
       title: '修改状态',
       render: (text, record) => (
@@ -67,19 +73,27 @@ class TradeList extends Component {
         this.init();
       }
 
+    changeTransactionStatus = (record) => {
+        if(record.saleOrg=="机构A"){ // 销售方为当前客户,他的操作只能是将未发货改成已发货
+    
+        }else if(record.buyOrg=="机构A"){ // 购买方为当前客户,他的操作只能是将
+    
+        }
+        console.log("click");
+      }
+
     init(){
         console.log("   @@@@@@@@");
         var pageNum = 1;
         var pageSize =10;
   
         axios({
-          url: 'http://172.20.10.9:8080/blockchain/transactionlist',
+          url: 'transactionlist',
           method: 'post',
           data: {
               "pageNum": "1",
               "pageSize":"10",
           },
-          withCredentials: true,
         })
         .then((res) => {
               console.log("res");        

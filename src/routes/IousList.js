@@ -3,7 +3,7 @@ import { Table,message,Button,Layout,Menu, Icon, Input } from 'antd';
 import axios from 'axios'
 import reqwest from 'reqwest'
 
-const iousColumns = [{
+const columns = [{
     title: '发放机构',
     dataIndex: 'sender',
   }, {
@@ -22,7 +22,7 @@ const iousColumns = [{
     ),
 }];
 
-var iousData = [{
+var data = [{
     key: '1',
     sender: '机构A',
     receiver:'机构B',
@@ -45,15 +45,42 @@ var iousData = [{
 class IousList extends Component {
     constructor(props) {
         super(props);        
-        this.init();
+        // this.init();
       }
 
-    init(){
-        console.log("   @@@@@@@@");
-        iousColumns[0]['title']="ssss";
+    state= {
+        data: [],
+        pagination: {},
+        loading: false,
+
+        amount:50,
+        editing:false,
+        fileList: [],
+        uploading: false,
+        havefile:false,
+    }
+
+    handleTableChange = (pagination, filters, sorter) => {
+        const pager = { ...this.state.pagination };
+        pager.current = pagination.current;
+        this.setState({
+          pagination: pager,
+        });
+        this.fetch({
+          results: pagination.pageSize,
+          page: pagination.current,
+          sortField: sorter.field,
+          sortOrder: sorter.order,
+          ...filters,
+        });
+      }
+    
+      fetch = (params = {}) => {
+        console.log('params:', params);
+        this.setState({ loading: true });
+
         var pageNum = 1;
         var pageSize =10;
-
         axios({
         //url: 'http://172.20.10.9:8080/blockchain/login',
         url: 'http://172.20.10.9:8080/blockchain/ioulist',
@@ -68,10 +95,10 @@ class IousList extends Component {
             console.log("res");        
             console.log(res); 
             console.log(res); 
-            console.log(iousData);
-            iousData = [];
+            console.log(data);
+            data = [];
             for (let i = 0; i < res.data.length; i++) {
-                iousData.push({
+                data.push({
                 key: ((i+1)+""),
                 sender: res.data[i]['fromOrg'],
                 receiver: res.data[i]['recOrg'],
@@ -80,14 +107,38 @@ class IousList extends Component {
                 });
             }
 
-            console.log(iousData);
+            const pagination = { ...this.state.pagination };
+            // Read total count from server
+            // pagination.total = data.totalCount;
+            pagination.total = 200;
+            this.setState({
+              loading: false,
+              data: data.results,
+              pagination,
+            });
+            
+            console.log(data);
             console.log("1111111");
         })
         .catch((error) => {
-        console.log("error");     
-        console.log(error);       
-        message.error('账号与密码不符！');
+            console.log("error");     
+            console.log(error);       
+            message.error('账号与密码不符！');
         });
+
+      }
+    
+      componentDidMount() {
+        this.fetch();
+      }
+    
+
+
+
+
+    init(){
+        console.log("   @@@@@@@@");
+        columns[0]['title']="ssss";
     }
 
     handleRecycleClick = (record) => {
@@ -125,17 +176,17 @@ class IousList extends Component {
         //   }); 
         // }
       }
-   
-    state= {
-      amount:50,
-      editing:false,
-      fileList: [],
-      uploading: false,
-      havefile:false,
-    }
+
   render() {
     return(<div>
-    <Table columns={iousColumns} dataSource={iousData} />
+    <Table
+        columns={columns}
+        rowKey={record => record.login.uuid}
+        dataSource={this.state.data}
+        pagination={this.state.pagination}
+        loading={this.state.loading}
+        onChange={this.handleTableChange}
+      />
   </div>)
   }
 }

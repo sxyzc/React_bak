@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Upload,message,Select,Form,Tooltip,Button,Layout,Menu, Icon, Input } from 'antd';
-
-import axios from 'axios'
+import axios from '../http'
 import reqwest from 'reqwest'
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -32,40 +31,34 @@ class ConVertify extends Component {
       uploading: false,
       havefile:false,
     }
-
-    submitClick = (e) => {
-      console.log("here")
-      e.preventDefault();
-      this.props.form.validateFields((err, values) => {
-        if (!err) {
-          if(this.state.havefile==true){
-            console.log('Received values of form: ', values);
-                axios({
-                  //url: 'http://47.106.237.105:8080/blockchain/add_transaction',
-                  url: 'http://172.20.10.9:8080/blockchain/add_transaction',
-                  method: 'post',
-                  data: values,
-                  withCredentials: true,
-                })        
-                .then(function(res){   
-                    console.log("res");        
-                    console.log(res); 
-                    if(res.data.status=="1"){
-                      message.success('录入交易成功');
-                    }
-                })       
-                .catch(function(error){
-                    console.log("error");     
-                    console.log(error);       
-                });   
-            this.setState({updateAmount:true});
+    
+    verifyClick = (e) => {
+        console.log("verifying")
+        e.preventDefault();
+        this.props.form.validateFields((err, values) => {
+          if (!err) {
+            if(this.state.havefile==true){
+              console.log('Received values of form: ', values);
+              axios.post('checkConId/'+values.verifyConID)        
+                  .then(function(res){   
+                      console.log("res");        
+                      console.log(res); 
+                      if(res.data.status=="1"){
+                        message.success('合同哈系匹配成功');
+                      }                         
+                  })       
+                  .catch(function(error){
+                      console.log("error");     
+                      console.log(error);       
+                  });   
+              this.setState({updateAmount:true});
+              }
+            else{
+              message.error('还没有上传合同文件');
             }
-          else{
-            message.error('还没有上传合同文件');
           }
-        }
-      })
-    }
+        })
+      }
 
     handleUpload = () => {
       console.log(this.state.fileList);
@@ -73,27 +66,25 @@ class ConVertify extends Component {
         uploading: true,     
       });
       var files = this.state.fileList;
-      reqwest({
-        url: 'http://172.20.10.9:8080/blockchain/upload',
+      axios({
+        url: 'upload',
         method: 'post',
         processData: false,
-        data: files,
-        withCredentials: true,
-        success: () => {
+        data: files})
+        .then((res) => {
           this.setState({
             fileList: [],
             uploading: false,
             havefile: true,
           });
           message.success('上传成功');
-        },
-        error: () => {
+        })
+        .catch((error) => {
           this.setState({
             uploading: false,
           });
           message.error('上传失败');
-        },
-      });
+        });
     }
 
   render() {
@@ -122,11 +113,11 @@ class ConVertify extends Component {
 
     return(<div className="container">
     <br /><br />
-    <Form onSubmit={this.submitClick} className="submit-form">
+    <Form onSubmit={this.verifyClick} className="submit-form">
 
     <span style={tip}>合同ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <FormItem style={inline}>
-    {getFieldDecorator('saleOrg', {
+    {getFieldDecorator('verifyConID', {
     rules: [{ required: true, message: '您还没有输入合同ID！' }],
     })(<Input size="large" style={input}/>)}</FormItem>
     <br />
