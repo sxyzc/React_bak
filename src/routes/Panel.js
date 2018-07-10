@@ -39,7 +39,7 @@ const iousColumns = [{
   },{
     title: '白条状态',
     render: (text, record) => (
-      <Button size="small">&nbsp;回收&nbsp;</Button>
+      <Button size="small" onClick="">&nbsp;回收&nbsp;</Button>
     ),
 }];
 var iousData = [{
@@ -124,6 +124,8 @@ class Panel extends Component {
     fileList: [],
     uploading: false,
     havefile:false,
+    ifIousSearch:false,
+    ifTradeSearch:false
   }
 
   submitClick = (e) => {
@@ -133,7 +135,7 @@ class Panel extends Component {
       if (!err) {
         if(this.state.havefile==true){
           console.log('Received values of form: ', values);
-          axios.post('http://47.106.237.105:8080/SUPL_DEMO/add_transaction',values)        
+          axios.post('http://172.20.10.9:8080/SUPL_DEMO/add_transaction',values)        
               .then(function(res){   
                   console.log("res");        
                   console.log(res); 
@@ -168,7 +170,7 @@ class Panel extends Component {
 
     // You can use any AJAX library you like
     reqwest({
-      url: 'http://47.106.237.105:8080/SUPL_DEMO/upload',
+      url: 'http://172.20.10.9:8080/SUPL_DEMO/upload',
       method: 'post',
       processData: false,
       data: formData,
@@ -208,6 +210,16 @@ class Panel extends Component {
       editing: !this.state.editing,
     });
   }
+
+  tradeBackAll = () => {
+    this.setState({ifTradeSearch:false});
+    //表格显示的内容变成原来的样子
+  }
+  iousBackAll = () => {
+    this.setState({ifIousSearch:false});
+    //表格显示的内容变成原来的样子
+  }
+
   render() {  
 
     const { uploading } = this.state;  
@@ -220,8 +232,8 @@ class Panel extends Component {
       var pageSize =10;
 
       axios({
-        //url: 'http://47.106.237.105:8080/blockchain/login',
-        url: 'http://110.64.88.38:8080/blockchain/ioulist',
+        //url: 'http://172.20.10.9:8080/blockchain/login',
+        url: 'http://172.20.10.9:8080/blockchain/ioulist',
         method: 'post',
         data: {
             "pageNum": "1",
@@ -232,7 +244,6 @@ class Panel extends Component {
       .then((res) => {
             console.log("res");        
             console.log(res); 
-            //iousData = res.data;
             console.log(res); 
             console.log(iousData);
             iousData = [];
@@ -262,7 +273,7 @@ class Panel extends Component {
       var pageSize =10;
 
       axios({
-        //url: 'http://47.106.237.105:8080/blockchain/login',
+        //url: 'http://172.20.10.9:8080/blockchain/login',
         url: 'http://110.64.88.38:8080/blockchain/transactionlist',
         method: 'post',
         data: {
@@ -400,7 +411,9 @@ class Panel extends Component {
                 onSearch={value => console.log(value)}
                 style={{marginLeft:'70%',marginBottom:22,width: '30%',minWidth:280}}
               />
+              {/* onSearch后要把对应的state里头的ifIousSearch设置为true */}
               <Table columns={iousColumns} dataSource={iousData} />
+              <Button onClick={this.iousBackAll} ghost={!this.state.ifIousSearch}>返回全部</Button>
             </div>)
     else if(key==4)
       return(<div>
@@ -411,7 +424,9 @@ class Panel extends Component {
             onSearch={value => console.log(value)}
             style={{marginLeft:'70%',marginBottom:22,width: '30%',minWidth:280}}
           />
+          {/* onSearch后要把对应的state里头的ifTradeSearch设置为true */}
           <Table columns={tradeColumns} dataSource={tradeData} />
+          <Button onClick={this.tradeBackAll} ghost={this.state.ifTradeSearch}>返回全部</Button>
           </div>)
     else 
     return(<div></div>)
