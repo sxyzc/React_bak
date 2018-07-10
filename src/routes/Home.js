@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { message,Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
+import React from 'react'
+import { message,Avatar,Layout,Menu, Icon } from 'antd';
 import { Redirect } from 'react-router-dom';
 import Panel from './Panel'
 import axios from '../http'

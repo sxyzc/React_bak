@@ -10,13 +10,7 @@ function error(message) {
 }
 
 class IousList extends Component {
-    constructor(props) {
-        super(props);        
-        // this.init();
-      }
-
     state= {
-        data: [],
         pagination: {},
         loading: false,
 

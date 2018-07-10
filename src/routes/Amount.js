@@ -80,7 +80,7 @@ class Amount extends Component {
     }
 
     render() {
-      const { visible, confirmLoading, ModalText } = this.state;
+      const { confirmLoading, ModalText } = this.state;
       var editing=this.state.editing
       var amount=this.props.amount
       if(editing)
