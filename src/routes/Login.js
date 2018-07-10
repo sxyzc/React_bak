@@ -27,7 +27,8 @@ class NormalLoginForm extends React.Component {
 
           axios({
             //url: 'http://47.106.237.105:8080/blockchain/login',
-            url: 'http://110.64.88.38:8080/blockchain/login',
+            //url: 'http://110.64.88.38:8080/blockchain/login',
+            url: 'http://172.20.10.9:8080/blockchain/login',
             method: 'post',
             data: values,
             withCredentials: true,
@@ -39,6 +40,8 @@ class NormalLoginForm extends React.Component {
                   console.log("登录成功！")
                   message.success('登录成功');
                   console.log(this);
+                  sessionStorage['orgID'] =values.orgID;
+                  console.log(sessionStorage['orgID']);
                   //url跳转到了 但是不会刷新
                   this.setState({redirect: 1});
                 }   

@@ -10,6 +10,7 @@ const { SubMenu } = Menu;
 export default class home extends React.Component {
   state = {
     menukey:'1',
+    conID:'',
   }
 
   changekey = (info) => {
@@ -18,8 +19,20 @@ export default class home extends React.Component {
     });
   }
 
+  onTest = () => {
+    Panel.iou
+  }
+
   render() {
+    if(this.state.orgID==''){
+      this.setState({
+        orgID: sessionStorage['orgID'],
+      });
+      console.log("ok");
+    }
+
     return (
+
         <Layout>
         <Sider
           theme="light"
@@ -27,8 +40,8 @@ export default class home extends React.Component {
           onCollapse={(collapsed, type) => { console.log(collapsed, type); }}
         >
           <div style={{ minHeight: 100 ,paddingLeft:80,paddingTop:20}} >
-            <Avatar size="large" icon="user" />
-            <div style={{ marginTop: 10}}>A机构</div>
+            <Avatar size="large" src="./bg.jpg" />
+            <div style={{ marginTop: 10}}>{sessionStorage['orgID']}</div>
           </div>
           <Menu theme="light" mode="inline" defaultSelectedKeys={['1']} onClick={this.changekey}>
             <Menu.Item key="1">
