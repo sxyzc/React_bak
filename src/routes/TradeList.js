@@ -137,10 +137,10 @@ class TradeList extends Component {
           receiver: res.data.saleOrg,
           Num: res.data.amount,
           time: res.data.transTime,
-          latestStatus: res.data.latestStatus
+          latestStatus: res.data.latestStatus=="C"?"已完成":"未完成"
       }
       win.state.transactions.push(obj);
-      // win.setState({transactions:});
+      console.log("1234564686")
       console.log(win.state.transactions);
       win.setState({ifTradeSearch:true});
       }else {
@@ -157,6 +157,7 @@ class TradeList extends Component {
     }
 
     handleStatusClick = (record) => {
+      this.setState({transactions:[]});
       let win=this      
       confirm({
         title: '确认交易已完成吗?',
@@ -273,7 +274,7 @@ render() {
             onSearch={value => this.searchTransactionByConID(value)}
             style={{marginLeft:'70%',marginBottom:22,width: '30%',minWidth:280}}
           /><Table columns={tradeColumns}
-                dataSource={this.state.data}
+                dataSource={this.state.ifTradeSearch?this.state.transactions:this.state.data}
                 pagination={this.state.pagination}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}/>
