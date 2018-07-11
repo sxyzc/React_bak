@@ -22,7 +22,7 @@ class NormalLoginForm extends React.Component {
         console.log('Received values of form: ', values);
         axios({
           method:'post',
-          url:'http://172.20.10.9:8080/blockchain/register',
+          url:'http://127.0.0.1:8080/blockchain/register',
           data:values,
       }).then((res) => {
           if(res.data.status=="1"){

@@ -3,6 +3,7 @@ import { Modal,Upload,message,Select,Form,Tooltip,Button,Layout,Menu, Icon, Inpu
 import { Redirect } from 'react-router-dom';
 import axios from 'axios'
 import reqwest from 'reqwest'
+import './style.css';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
@@ -175,10 +176,10 @@ class AddTransaction extends Component {
                   <Icon type="upload" /> 选择文件
                 </Button>
             </Upload>
-
             <Button
-                className="upload-demo-start"
                 onClick={this.handleUpload}
+                className="upload-demo-start"
+                // className={(this.state.fileList.length === 0)?"upload-demo-start hide":"upload-demo-start"}
                 ghost={this.state.fileList.length === 0}
                 loading={uploading}
                 style={upload}
