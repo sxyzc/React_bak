@@ -107,7 +107,7 @@ class IousList extends Component {
           console.log("2222");
           axios({
             //url: 'http://47.106.237.105:8080/blockchain/login',
-            url: 'http://172.20.10.9:8080/blockchain/recycle_iou',
+            url: 'http://127.0.0.1:8080/blockchain/recycle_iou',
             method: 'post',
             data:{
               iouId:record.iouId,

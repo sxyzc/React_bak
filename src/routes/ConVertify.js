@@ -44,7 +44,7 @@ class ConVertify extends Component {
                       console.log("res");        
                       console.log(res); 
                       if(res.data.status=="1"){
-                        message.success('合同哈系匹配成功');
+                        message.success('合同哈希匹配成功');
                       }                         
                   })       
                   .catch(function(error){
@@ -62,28 +62,33 @@ class ConVertify extends Component {
 
     handleUpload = () => {
       console.log(this.state.fileList);
-      this.setState({
-        uploading: true,     
-      });
-      var files = this.state.fileList;
-      axios({
-        url: 'upload',
-        method: 'post',
-        processData: false,
-        data: files})
-        .then((res) => {
-          this.setState({
-            fileList: [],
-            uploading: false,
-            havefile: true,
-          });
-          message.success('合同上传成功');
-        })
-        .catch((error) => {
-          this.setState({
-            uploading: false,
-          });
-          message.error('合同上传失败');
+        this.setState({
+          uploading: true,     
+        });
+        var files = this.state.fileList;
+        var formdata = new FormData();
+        formdata.append("file",files[0]);
+        reqwest({
+          url: 'http://127.0.0.1:8080/blockchain/upload',
+          method: 'post',
+          processData: false,
+          data: formdata,
+          contentType: false,
+          withCredentials: true,
+          success: () => {
+            this.setState({
+              fileList: [],
+              uploading: false,
+              havefile: true,
+            });
+            message.success('合同上传成功');
+          },
+          error: () => {
+            this.setState({
+              uploading: false,
+            });
+            message.error('合同上传失败');
+          },
         });
     }
 

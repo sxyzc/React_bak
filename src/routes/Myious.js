@@ -28,7 +28,7 @@ class Myious extends Component {
           console.log("getting amount");
           axios({
             method:'post',
-            url:'http://172.20.10.9:8080/blockchain/get_entity_iou_limit',
+            url:'http://127.0.0.1:8080/blockchain/get_entity_iou_limit',
             data:{
               orgID:sessionStorage['orgID']
             },

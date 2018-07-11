@@ -42,7 +42,7 @@ class Amount extends Component {
                             setTimeout(function(){
                                 axios({
                                     method:'post',
-                                    url:'http://172.20.10.9:8080/blockchain/update_iou_limit',
+                                    url:'http://127.0.0.1:8080/blockchain/update_iou_limit',
                                     data:{
                                         amount:value,
                                         orgID:"bussiness_final"

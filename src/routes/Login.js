@@ -21,7 +21,7 @@ class NormalLoginForm extends React.Component {
     if (!err) {
         axios({
           //url: 'http://47.106.237.105:8080/blockchain/login',
-          url: 'http://172.20.10.9:8080/blockchain/login',
+          url: 'http://127.0.0.1:8080/blockchain/login',
           method: 'post',
           data: values,
           withCredentials: true,

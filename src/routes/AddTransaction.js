@@ -72,11 +72,14 @@ class AddTransaction extends Component {
           uploading: true,     
         });
         var files = this.state.fileList;
+        var formdata = new FormData();
+        formdata.append("file",files[0]);
         reqwest({
-          url: 'http://172.20.10.9:8080/blockchain/upload',
+          url: 'http://127.0.0.1:8080/blockchain/upload',
           method: 'post',
           processData: false,
-          data: files,
+          data: formdata,
+          contentType: false,
           withCredentials: true,
           success: () => {
             this.setState({
@@ -162,7 +165,6 @@ class AddTransaction extends Component {
                   <Icon type="upload" /> 选择文件
                 </Button>
             </Upload>
-
             <Button
                 className="upload-demo-start"
                 onClick={this.handleUpload}

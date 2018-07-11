@@ -176,7 +176,7 @@ class TradeList extends Component {
 
           axios({
             //url: 'http://47.106.237.105:8080/blockchain/login',
-            url: 'http://172.20.10.9:8080/blockchain/update_trans_status',
+            url: 'http://127.0.0.1:8080/blockchain/update_trans_status',
             method: 'post',
             data:{
               conID:record.contract,
@@ -249,7 +249,7 @@ render() {
         <Button size="small" 
         disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} >&nbsp;
         <a style={{color:'inherit'}} 
-        href={"http://172.20.10.9:8080/blockchain/download/"+record.contract}>
+        href={"http://127.0.0.1:8080/blockchain/download/"+record.contract}>
         下载</a>&nbsp;</Button>
       ),
   },{
@@ -257,7 +257,7 @@ render() {
     dataIndex: 'Num',
     align:"center",
     render: (text, record) => (<span>
-      <span>{text}&nbsp;&nbsp;</span>
+      <span>{record.latestStatus}&nbsp;&nbsp;</span>
       <Button size="small" icon="edit"
       disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} 
       onClick={this.handleStatusClick.bind(this,record)}/>    
