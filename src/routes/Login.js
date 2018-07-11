@@ -1,6 +1,6 @@
 import React from 'react'
 import logo from '../logo.png'
-import axios from 'axios'
+import axios from '../http'
 import { browserHistory } from 'react-router';
 import { message,Form,Icon,Button,Input,Select } from 'antd';
 import { Router, Link, Route } from 'react-router-dom';
@@ -20,11 +20,9 @@ class NormalLoginForm extends React.Component {
     this.props.form.validateFields((err, values) => {
     if (!err) {
         axios({
-          //url: 'http://47.106.237.105:8080/blockchain/login',
-          url: 'http://172.20.10.9:8080/blockchain/login',
+          url: 'login',
           method: 'post',
           data: values,
-          withCredentials: true,
         })
         .then((res) => {
               console.log("res");        

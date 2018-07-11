@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Upload,message,Select,Form,Tooltip,Button,Layout,Menu, Icon, Input } from 'antd';
-
+import { Modal,Upload,message,Select,Form,Tooltip,Button,Layout,Menu, Icon, Input } from 'antd';
+import { Redirect } from 'react-router-dom';
 import axios from 'axios'
 import reqwest from 'reqwest'
 const Option = Select.Option;
@@ -29,6 +29,7 @@ class AddTransaction extends Component {
         uploading: false,
         havefile:false,
         submiting:false,
+        redirect:0,
       }
 
       submitClick = (e) => {
@@ -49,10 +50,16 @@ class AddTransaction extends Component {
                       console.log("res");        
                       console.log(res); 
                       if(res.data.status=="1"){
-                        message.success('录入交易成功');
+                        Modal.success({
+                            title: '录入交易成功',
+                            content: '',
+                        })
+                      }
+                      else{
+                        message.error(res.data.message)
                       }
                   })       
-                  .catch((error) => {
+                  .catch((error) => {                    
                       this.setState({submiting: false})
                       console.log("error");     
                       console.log(error);       
@@ -72,11 +79,14 @@ class AddTransaction extends Component {
           uploading: true,     
         });
         var files = this.state.fileList;
+        var formdata = new FormData();
+        formdata.append("file",files[0]);
         reqwest({
-          url: 'http://172.20.10.9:8080/blockchain/upload',
+          url: 'http://192.168.20.15:8080/blockchain/upload',
           method: 'post',
           processData: false,
-          data: files,
+          data: formdata,
+          contentType: false,
           withCredentials: true,
           success: () => {
             this.setState({
@@ -96,6 +106,9 @@ class AddTransaction extends Component {
       }
 
     render() {
+      if (this.state.redirect == 1) {
+        return <Redirect push to="/login" />; 
+      }
       const { getFieldDecorator } = this.props.form
       const { uploading } = this.state;  
       const props = {

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Spin,Table,message,Button,Layout,Menu, Icon, Input, Modal } from 'antd';
-import reqwest from 'reqwest'
 import axios from '../http'
 function error(message) {
   Modal.error({
@@ -89,49 +88,45 @@ class IousList extends Component {
       handleRecycleClick = (record) => {
         console.log(1);
         console.log(record);
-
-        var max=record.num-record.returnNum//当前能归还的白条数量
-        var amount=1
-    
+        var max=record.num-record.returnNum//当前能归还的白条数量     
         var amount=prompt("输入想要回收的白条额度")  
-        amount=Number(amount)
-        if(amount<0){error("回收额度不能为负！")}
-        else if(isNaN(amount)){error("必须输入数字！")}
-        else if(amount>max){error("所设额度超过当前未归还的白条数量！")}
-        else{
-          this.setState({recyling:true});
-          var values={}
-          values.iouId=record.iouId
-          values.amount=amount
-          console.log(values)  
-          console.log("2222");
-          axios({
-            //url: 'http://47.106.237.105:8080/blockchain/login',
-            url: 'http://172.20.10.9:8080/blockchain/recycle_iou',
-            method: 'post',
-            data:{
-              iouId:record.iouId,
-              amount:amount,
-            },
-            withCredentials: true,
-          })
-          .then((res) => {
-            console.log("res"); 
-            console.log(res); 
-            if(res.data.status=="1"){
-              message.success('回收白条成功');
-            } 
-            this.componentDidMount()
-            this.setState({recyling:false});
-          })
-          .catch((error) => {
-            console.log("error");     
-            console.log(error);       
-            message.error('网络状态不佳！');
-            this.setState({recyling:false});
-          });
-        }
-        
+        if(amount!=null){
+          amount=Number(amount)
+          if(amount<0){error("回收额度不能为负！")}
+          else if(isNaN(amount)){error("必须输入数字！")}
+          else if(amount>max){error("所设额度超过当前未归还的白条数量！")}
+          else{
+            this.setState({recyling:true});
+            var values={}
+            values.iouId=record.iouId
+            values.amount=amount
+            console.log(values)  
+            console.log("2222");
+            axios({
+              url: 'recycle_iou',
+              method: 'post',
+              data:{
+                iouId:record.iouId,
+                amount:amount,
+              },
+            })
+            .then((res) => {
+              console.log("res"); 
+              console.log(res); 
+              if(res.data.status=="1"){
+                message.success('回收白条成功');
+              } 
+              this.componentDidMount()
+              this.setState({recyling:false});
+            })
+            .catch((error) => {
+              console.log("error");     
+              console.log(error);       
+              message.error('网络状态不佳！');
+              this.setState({recyling:false});
+            });
+          }
+        } 
       }
 
   render() {
@@ -150,11 +145,11 @@ class IousList extends Component {
       dataIndex: 'returnNum',
       align:"center",
     },{
-      title: '白条状态',
+      title: '操作',
       align:"center",
       render: (text, record) => (
         <Button size="small" 
-        disabled={record.sender!=sessionStorage['orgID']} 
+        disabled={record.sender!=sessionStorage['orgID']||record.returnNum==record.num} 
         onClick={this.handleRecycleClick.bind(this,record)}>&nbsp;回收&nbsp;</Button>
       ),
   }];

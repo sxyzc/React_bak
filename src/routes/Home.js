@@ -1,5 +1,5 @@
 import React from 'react'
-import { message,Avatar,Layout,Menu, Icon } from 'antd';
+import { Modal,message,Avatar,Layout,Menu, Icon } from 'antd';
 import { Redirect } from 'react-router-dom';
 import Panel from './Panel'
 import axios from '../http'
@@ -40,7 +40,6 @@ export default class home extends React.Component {
         message.error('网络状态不佳,注销失败');
       });
   }
-
   render() {
     if(this.state.orgID==''){
       this.setState({
@@ -54,16 +53,16 @@ export default class home extends React.Component {
     return (
         <Layout>
         <Sider
-          theme="light"
+          theme="dark"
           collapsedWidth="0"
           onCollapse={(collapsed, type) => { console.log(collapsed, type); }}
         >
-          <div style={{ minHeight: 100 ,paddingLeft:80,paddingTop:20}} >
+          <div style={{ minHeight: 120 ,paddingLeft:80,paddingTop:20}} >
             <Avatar size="large" icon="user" />
-            <div style={{ marginTop: 10,width: 200,marginLeft: -80,textAlign: 'center'}}>
+            <div style={{ color:'rgba(255,255,255,0.65)',marginTop: 10,width: 200,marginLeft: -80,textAlign: 'center'}}>
             {sessionStorage['orgID']}</div>
           </div>
-          <Menu theme="light" mode="inline" defaultSelectedKeys={['1']} onClick={this.changekey}>
+          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} onClick={this.changekey}>
             <Menu.Item key="1">
               <Icon type="user" />
               <span className="nav-text">我的白条</span>

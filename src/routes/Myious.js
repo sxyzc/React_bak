@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { Dropdown,Modal,Upload,message,Select,Form,Tooltip,Table, Divider,Button,Avatar,Layout,Menu, Icon, Switch,Input } from 'antd';
-import axios from 'axios'
+import axios from '../http'
 import Amount from './Amount'
 
 const tip={
     'fontSize':'20px'
-  }
+}
 
 class Myious extends Component {
     constructor(props) {
@@ -28,11 +28,10 @@ class Myious extends Component {
           console.log("getting amount");
           axios({
             method:'post',
-            url:'http://172.20.10.9:8080/blockchain/get_entity_iou_limit',
+            url:'get_entity_iou_limit',
             data:{
               orgID:sessionStorage['orgID']
             },
-            withCredentials: true,
           }).then(function(res){
             console.log(res.data.iouLimit);
             win.setState({amount:res.data.iouLimit});

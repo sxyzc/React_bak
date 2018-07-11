@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { message,Modal,Tooltip,Icon,Input } from 'antd';
-import axios from 'axios'
+import { Spin,Button,message,Modal,Tooltip,Icon,Input } from 'antd';
+import axios from '../http'
 const confirm = Modal.confirm;
 
 function error(message) {
@@ -20,14 +20,19 @@ class Amount extends Component {
     state = {
         editing:false,
         amountValue:0,
+        loading:false,
     }
-
+    cancle = (e) => {   
+        this.setState({editing: false});
+    }
     //   this.props.onAmountChange(value);
 
-    editClick = (e) => {        
+    editClick = (e) => {
+        e.preventDefault()
         if(this.state.editing==true){//按钮是保存
             let win = this;
             var value=e.target.parentNode.firstChild.value
+            console.log(value)
             if(value==""){error("您还没有输入数值！")}
             else{
                 value=Number(value)
@@ -37,36 +42,35 @@ class Amount extends Component {
                     confirm({
                         title: '确定要修改你发行的白条额度吗？',
                         content: '你的白条额度将被修改为：'+String(value),
-                    onOk(){
-                        return new Promise((resolve, reject) => {
-                            setTimeout(function(){
-                                axios({
-                                    method:'post',
-                                    url:'http://172.20.10.9:8080/blockchain/update_iou_limit',
-                                    data:{
-                                        amount:value,
-                                        orgID:"bussiness_final"
-                                    },
-                                }).then(function(res){
-                                    
-                                    console.log(res.data);
-                                    if(res.data.status=="1"){
-                                        // 正确修改
-                                        win.setState({amountValue: value});
-                                        win.setState({editing: !win.state.editing});
-                                        win.props.onAmountChange(value);
-                                        console.log(win.state.amountValue);
-                                        message.success('成功更新白条额度');
-                                    }
-                                }).catch(function(error){
-                                  console.log("error");     
-                                  console.log(error);       
-                              });
-                                resolve("成功!"); //代码正常执行！
-                            }, 500);
-                        })
-                        
-                    },
+                    onOk(){              
+                        console.log(1)          
+                            win.setState({loading: true});
+                            axios({
+                                method:'post',
+                                url:'update_iou_limit',
+                                data:{
+                                    amount:value,
+                                    orgID:"bussiness_final"
+                                },
+                            }).then((res) => {
+                                console.log(res.data);
+                                if(res.data.status=="1"){
+                                    // 正确修改
+                                    win.setState({amountValue: value});
+                                    win.setState({editing: !win.state.editing});
+                                    win.props.onAmountChange(value);
+                                    console.log(win.state.amountValue);
+                                    message.success('成功更新白条额度');
+                                }
+                                else{message.error('更新失败');}
+                                win.setState({loading: false});
+                            }).catch(function(error){
+                                console.log("error");     
+                                console.log(error);     
+                                message.error('更新失败');
+                                win.setState({loading: false});  
+                            });
+                        },
                     onCancel() {
                         win.setState({editing: !win.state.editing});
                         console.log('取消');
@@ -84,18 +88,22 @@ class Amount extends Component {
       var editing=this.state.editing
       var amount=this.props.amount
       if(editing)
-        return(<span>
+        return(        
+        <div style={{marginTop:10}}>
+            <Spin spinning={this.state.loading} tip="白条额度更新中……">
             <Input id="value" placeholder="输入你想发行的白条额度" style={{width:200}} />&nbsp;
             <Tooltip placement="top" title="保存">
                 <Icon type="save" style={{ fontSize: 20}} onClick={this.editClick}/>
-            </Tooltip>
-            </span>)
-      else return(<span>
+            </Tooltip>&nbsp;
+            <Button style={{marginLeft:10}}size="small" onClick={this.cancle}>&nbsp;取消&nbsp;</Button>
+            </Spin></div>
+        )
+      else return(<div style={{marginTop:10}}>
           <span id="amount">{amount}</span>&nbsp;
           <Tooltip placement="top" title="修改">
                 <Icon type="edit" style={{ fontSize: 20}} onClick={this.editClick}/>
           </Tooltip>
-          </span>)
+          </div>)
     }
   }
 

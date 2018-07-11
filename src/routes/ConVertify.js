@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Upload,message,Select,Form,Tooltip,Button,Layout,Menu, Icon, Input } from 'antd';
+import { Modal,Upload,message,Select,Form,Tooltip,Button,Layout,Menu, Icon, Input } from 'antd';
 import axios from '../http'
 import reqwest from 'reqwest'
 const Option = Select.Option;
@@ -44,12 +44,25 @@ class ConVertify extends Component {
                       console.log("res");        
                       console.log(res); 
                       if(res.data.status=="1"){
-                        message.success('合同哈系匹配成功');
-                      }                         
+                        Modal.success({
+                          title: '合同哈希匹配成功',
+                          content: '',
+                      })
+                      }     
+                      else{
+                        Modal.success({
+                          title: '合同哈希匹配失败',
+                          content: '',
+                      })
+                      }                    
                   })       
                   .catch(function(error){
                       console.log("error");     
                       console.log(error);       
+                      Modal.success({
+                        title: '合同哈希匹配失败',
+                        content: '',
+                    })
                   });   
               this.setState({updateAmount:true});
               }
@@ -62,28 +75,33 @@ class ConVertify extends Component {
 
     handleUpload = () => {
       console.log(this.state.fileList);
-      this.setState({
-        uploading: true,     
-      });
-      var files = this.state.fileList;
-      axios({
-        url: 'upload',
-        method: 'post',
-        processData: false,
-        data: files})
-        .then((res) => {
-          this.setState({
-            fileList: [],
-            uploading: false,
-            havefile: true,
-          });
-          message.success('合同上传成功');
-        })
-        .catch((error) => {
-          this.setState({
-            uploading: false,
-          });
-          message.error('合同上传失败');
+        this.setState({
+          uploading: true,     
+        });
+        var files = this.state.fileList;
+        var formdata = new FormData();
+        formdata.append("file",files[0]);
+        reqwest({
+          url: 'http://192.168.20.15:8080/blockchain/upload',
+          method: 'post',
+          processData: false,
+          data: formdata,
+          contentType: false,
+          withCredentials: true,
+          success: () => {
+            this.setState({
+              fileList: [],
+              uploading: false,
+              havefile: true,
+            });
+            message.success('合同上传成功');
+          },
+          error: () => {
+            this.setState({
+              uploading: false,
+            });
+            message.error('合同上传失败');
+          },
         });
     }
 

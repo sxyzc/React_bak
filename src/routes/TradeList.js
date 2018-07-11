@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Dropdown,Table,message,Button,Layout,Menu, Icon, Input, Modal } from 'antd';
-import reqwest from 'reqwest'
+import { Spin,Tooltip,Dropdown,Table,message,Button,Layout,Menu, Icon, Input, Modal } from 'antd';
 import axios from '../http'
+import './style.css';
 const confirm = Modal.confirm;
 function error(message) {
   Modal.error({
@@ -18,7 +18,7 @@ var tradeData = []
 
 class TradeList extends Component {
     state= {
-
+      updating:false,
       filterDropdownVisible: false,
       searchText: '',
       filtered: false,
@@ -26,7 +26,7 @@ class TradeList extends Component {
       pagination: {},
       loading: false,
       ifTradeSearch: false,
-      transactions: []
+      transactions: [],
     }
 
     //实现合同号搜索功能
@@ -94,7 +94,7 @@ class TradeList extends Component {
               receiver: res.data[i]['saleOrg'],
               Num: res.data[i]['amount'],
               time: res.data[i]['updateTime'],
-              latestStatus: res.data[i]['latestStatus']
+              latestStatus: res.data[i]['latestStatus']=="C"?"已完成":"未完成"
             });
           }
           const pagination = { ...this.state.pagination };
@@ -156,44 +156,39 @@ class TradeList extends Component {
       this.fetch();
     }
 
-    changeTransactionStatus = (record) => {
-      if(record.saleOrg=="机构A"){ // 销售方为当前客户,他的操作只能是将未发货改成已发货
-  
-      }else if(record.buyOrg=="机构A"){ // 购买方为当前客户,他的操作只能是将
-  
-      }
-      console.log("click");
-    }
-
     handleStatusClick = (record) => {
-      console.log(1);
-      console.log(record);
+      let win=this      
       confirm({
-        title: '确认修改状态?',
-        content: '确认吗？',
+        title: '确认交易已完成吗?',
+        content: '该操作不可逆，请谨慎确认。',
         onOk() {
+          win.setState({updating:true});
+          console.log(record)
           console.log("ok");
-
           axios({
-            //url: 'http://47.106.237.105:8080/blockchain/login',
-            url: 'http://172.20.10.9:8080/blockchain/update_trans_status',
+            url: 'update_trans_status',
             method: 'post',
             data:{
               conID:record.contract,
             },
-            withCredentials: true,
           })
-          .then((res) => {
+          .then((res) => {            
             console.log("res"); 
             console.log(res); 
             if(res.data.status=="1"){
-              message.success('修改状态成功');
+              Modal.success({title:'交易已完成！'})
+              win.setState({updating:false});
+              win.componentDidMount()
             } 
+            else{
+              Modal.error({title:'交易确认失败'})
+            }            
           })
           .catch((error) => {
             console.log("error");     
             console.log(error);       
             message.error('网络状态不佳！');
+            win.setState({updating:false});
           });
   
         },
@@ -203,7 +198,6 @@ class TradeList extends Component {
     } 
 
 render() {
-
   const tradeColumns = [{
     title: '合同号',
     dataIndex: 'contract',
@@ -219,7 +213,7 @@ render() {
         <Button type="primary" onClick={this.onSearch}>Search</Button>
       </div>
     ),
-    filterIcon: <Icon type="smile-o" style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }} />,
+    filterIcon: <Icon type="search" style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }} />,
     filterDropdownVisible: this.state.filterDropdownVisible,
     onFilterDropdownVisibleChange: (visible) => {
       this.setState({
@@ -246,28 +240,32 @@ render() {
       title: '下载合同',
       align:"center",
       render: (text, record) => (
-        <Button size="small" 
-        disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} >&nbsp;
         <a style={{color:'inherit'}} 
-        href={"http://172.20.10.9:8080/blockchain/download/"+record.contract}>
-        下载</a>&nbsp;</Button>
+        href={"http://192.168.20.15:8080/blockchain/download/"+record.contract}>
+        <Tooltip placement="top" title="下载合同">
+        <Button size="small" 
+        icon="download"
+        disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} >
+        </Button>
+        </Tooltip>
+        </a>        
       ),
   },{
     title: '交易状态',
-    dataIndex: 'Num',
+    dataIndex: 'latestStatus',
     align:"center",
-    render: (text, record) => (<span>
-      <span>{text}&nbsp;&nbsp;</span>
-      <Button size="small" icon="edit"
-      disabled={(record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID'])} 
-      onClick={this.handleStatusClick.bind(this,record)}/>    
+},{
+  title: '操作',
+  align:"center",
+  render: (text, record) => (<span>
+    <Button size="small"
+            className={((((record.sender!=sessionStorage['orgID'])&&(record.receiver!=sessionStorage['orgID']))||(record.latestStatus!="未完成"))==true)?"hide":""}
+            onClick={this.handleStatusClick.bind(this,record)}>
+            完成交易</Button>
     </span>),
 }];
 
-
-
-
-  return(<div>
+  return(<Spin spinning={this.state.updating} tip="交易确认中...">
           <Search
             placeholder="输入合同号搜索"
             enterButton="搜索"
@@ -279,7 +277,7 @@ render() {
                 pagination={this.state.pagination}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}/>
-                </div>)
+                </Spin>)
   }
 }
 export default TradeList
